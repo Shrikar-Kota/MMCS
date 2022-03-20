@@ -1,0 +1,52 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sign In</title>
+    <!-- Third Party Scripts -->
+    <!-- Custom Scripts -->
+    <script type="text/javascript" src="{%static 'home/signin.js' %}"></script>
+    <!-- Third Party CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .rounded-border {
+            border-radius: 1rem !important;
+        }
+        .red-border {
+            border: 1px solid red;
+        }
+    </style>
+</head>
+
+<body onload="performOnLoad()">
+    <div class="col-12 d-flex align-items-center vh-100">
+        <div class="col-lg-3 col-9 mx-auto my-auto shadow-lg border rounded-border p-4 pt-5">
+            <div class="col-12 mx-auto">
+                <h1 class="text-center font-weight-light user-select-none">Sign In</h1>
+                <br>
+                <form>
+                    <div class="form-group">
+                        <label for="emailField">Email address</label>
+                        <input type="email" class="form-control p-3 input-field" id="emailField" placeholder="Email address">
+                    </div>
+                    <div class="form-group">
+                        <label for="passwordField">Password</label>
+                        <input type="password" class="form-control p-3 input-field" id="passwordField" placeholder="Password">
+                    </div>
+                    <br>
+                    <div class="form-group">
+                        <button class="btn btn-block btn-success p-2" id="signin-btn" disabled>Sign In</button>
+                    </div>
+                </form>
+                <br>
+                <div class="text-center">
+                    Don't have an account? <a href="{% url 'signup' %}">Sign Up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
