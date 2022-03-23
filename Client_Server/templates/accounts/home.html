@@ -1,0 +1,32 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>MMCS</title>
+    <!-- Third Party Scripts -->
+    <!-- Custom Scripts -->
+    <script type="text/javascript" src="{%static 'accounts/signin.js' %}"></script>
+    <!-- Third Party CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .rounded-border {
+            border-radius: 1rem !important;
+        }
+    </style>
+</head>
+
+<body onload="performOnLoad()">
+    <div class="col-12 vh-100">
+        <div class="col-12 mx-auto my-5 shadow-lg border rounded-border p-4">
+            <h1>One step away!</h1>
+            <br>
+            <p>
+                An email has been sent to the registered email id. Please click the link mentioned in the email sent to verify your account. Account gets created only after the verification is done.
+            </p>
+        </div>
+    </div>
+</body>
+
+</html>

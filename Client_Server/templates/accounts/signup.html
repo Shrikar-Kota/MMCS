@@ -3,11 +3,11 @@
 <html lang="en">
 
 <head>
-    <title>Sign Up</title>
-    <title>Sign In</title>
+    <title>MMCS</title>
     <!-- Third Party Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Custom Scripts -->
-    <script type="text/javascript" src="{%static 'home/signup.js' %}"></script>
+    <script type="text/javascript" src="{%static 'accounts/signup.js' %}"></script>
     <!-- Third Party CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -26,11 +26,12 @@
         }
         #error-message{
             border: 1px solid red;
+            border-radius: 0.5rem !important;
             color: red;
             background-color: #fceae8;
-            font-size: medium;
+            font-size: large;
         }
-        .invsible {
+        .invisible {
             display: none !important;
         }
         .red-border {
@@ -44,11 +45,12 @@
         <div class="col-lg-3 col-9 mx-auto my-auto shadow-lg border rounded-border p-4 pt-5">
             <div class="col-12 mx-auto">
                 <h1 class="text-center font-weight-light user-select-none">Sign Up</h1>
-                <div class="invisible rounded-border" id="error-message">
-                    
+                <div class="invisible text-center p-2 mt-4" id="error-message">
+                    Email already registered.
                 </div>
                 <br>
                 <form>
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="userNameField">User Name <span id="userNameFieldInfo" class="info-symbol">&#9432;</span></label>
                         <input type="text" class="form-control p-3 input-field" id="userNameField" placeholder="User Name">
@@ -80,6 +82,10 @@
             
         </div>
     </div>
+    <script>
+        var registrationurl = "{% url 'signup' %}";
+        var accounts_home = "{% url 'accounts_home' %}";
+    </script>
 </body>
 
 </html>

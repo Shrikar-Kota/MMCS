@@ -3,10 +3,10 @@
 <html lang="en">
 
 <head>
-    <title>Sign In</title>
+    <title>MMCS</title>
     <!-- Third Party Scripts -->
     <!-- Custom Scripts -->
-    <script type="text/javascript" src="{%static 'home/signin.js' %}"></script>
+    <script type="text/javascript" src="{%static 'accounts/signin.js' %}"></script>
     <!-- Third Party CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -25,8 +25,12 @@
         <div class="col-lg-3 col-9 mx-auto my-auto shadow-lg border rounded-border p-4 pt-5">
             <div class="col-12 mx-auto">
                 <h1 class="text-center font-weight-light user-select-none">Sign In</h1>
+                <div class="invisible text-center p-2 mt-4" id="error-message">
+                    Invalid Credentials.
+                </div>
                 <br>
                 <form>
+                    {% csrf_token %}
                     <div class="form-group">
                         <label for="emailField">Email address</label>
                         <input type="email" class="form-control p-3 input-field" id="emailField" placeholder="Email address">

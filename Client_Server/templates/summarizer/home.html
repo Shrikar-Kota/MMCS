@@ -1,0 +1,25 @@
+{%load static%}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>MMCS</title>
+    <!-- Third Party Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Custom Scripts -->
+    <!-- Third Party CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+</head>
+
+<body>
+    <div class="col-12 d-flex align-items-center vh-100">
+        Welcome to MMCS.
+        <a href="#">Logout</a>
+    </div>
+    <script>
+        var registrationurl = "{% url 'signup' %}";
+    </script>
+</body>
+
+</html>
