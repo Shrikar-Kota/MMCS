@@ -1,12 +1,29 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from .models import User
 from django.contrib.auth.models import auth
 import json
+import binascii, os
+from cryptography.fernet import Fernet
+from django.urls import reverse
+
+from .models import User
+from .email_service import send_verification_email
+
+fernet_key = b'G77fOK591dHIvWYBsyRXsK2w_-6MRiF9g-L2JzOmuiE='
 
 # Create your views here.
 def accounts_home_view(request):
-    return render(request, 'accounts/home.html')
+    token = request.GET.get('token', "")
+    if token == "":
+        return redirect(signin_view)
+    try:
+        email = Fernet(fernet_key).decrypt(token.encode()).decode()
+        if User.objects.filter(email=email):
+            return render(request, 'accounts/home.html', {"email": email})
+        else:
+            return redirect(signin_view)
+    except:
+        return redirect(signin_view)
     
 def signin_view(request):
     if request.method == 'POST':
@@ -30,14 +47,18 @@ def signup_view(request):
         if User.objects.filter(email=email):
             return JsonResponse({"message": "Error"})
         else:
-            user = User.objects.create_user(username, email, password)
+            signin_token = binascii.hexlify(os.urandom(50)).decode()
+            user = User.objects.create_user(username=username, email=email, password=password, signin_token=signin_token)
             user.save()
-            return JsonResponse({"message": "Success"})
+            send_verification_email(email, reverse('verify_view')+"?token="+signin_token)
+            email_token = Fernet(fernet_key).encrypt(user.email.encode()).decode()
+            return JsonResponse({"message": "Success", "token": email_token})
         
     return render(request, 'accounts/signup.html')
 
-def verify_view(request, token=None):
-    if token == None:
-        return redirect(request, signin_view)
+def verify_view(request):
+    token = request.GET.get('token', "")
+    if token == "":
+        return token
     else:
-        pass
+        return "Invalid token"

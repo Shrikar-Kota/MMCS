@@ -8,9 +8,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=100)
     forget_password_token = models.CharField(max_length=100, null=True, blank=True)
-    sigin_token = models.CharField(max_length=100, null=True, blank=True)
+    signin_token = models.CharField(max_length=100, null=True, blank=True)
     account_verified = models.BooleanField(default=False)
-    account_creation_time = models.DateTimeField()
+    token_creation_time = models.DateTimeField()
     
     objects = UserManager()
     

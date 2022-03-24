@@ -124,7 +124,7 @@ const registerUser = (event) => {
                     document.querySelector("#error-message").classList.remove("invisible");
                     document.querySelector("#emailField").focus();
                 }else{
-                    window.location.href = accounts_home;
+                    window.location.href = accounts_home + "?token=" + response['token'];
                 }
             },
             error: function(){

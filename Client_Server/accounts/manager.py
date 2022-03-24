@@ -14,7 +14,7 @@ class UserManager(BaseUserManager):
         if not password:
             raise ValueError("Password is required.")
         
-        extra_fields.setdefault("account_creation_time", datetime.utcnow())
+        extra_fields.setdefault("token_creation_time", datetime.utcnow())
         email = self.normalize_email(email)
         user = self.model(email = email, username = username, **extra_fields)
         user.set_password(password)
