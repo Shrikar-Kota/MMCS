@@ -21,6 +21,13 @@
         .invisible {
             display: none;
         }
+        #error-message{
+            border: 1px solid red;
+            border-radius: 0.5rem !important;
+            color: red;
+            background-color: #fceae8;
+            font-size: large;
+        }
     </style>
 </head>
 
@@ -30,7 +37,7 @@
             <div class="col-12 mx-auto">
                 <h1 class="text-center font-weight-light user-select-none">Sign In</h1>
                 <div class="invisible text-center p-2 mt-4" id="error-message">
-                    Invalid Credentials.
+                    Invalid Credentials
                 </div>
                 <br>
                 <form>
@@ -45,7 +52,10 @@
                     </div>
                     <br>
                     <div class="form-group">
-                        <button class="btn btn-block btn-success p-2" id="signin-btn" disabled>Sign In</button>
+                        <button class="btn btn-block btn-success p-2 mb-2" id="signin-btn" disabled>Sign In</button>
+                    </div>
+                    <div class="text-center">
+                        <a href="{% url 'forgot_password' %}">Forgot Password</a>
                     </div>
                 </form>
                 <br>

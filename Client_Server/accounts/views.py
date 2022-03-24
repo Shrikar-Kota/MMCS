@@ -9,7 +9,7 @@ import binascii, os
 from cryptography.fernet import Fernet
 
 from .models import User
-from .email_service import send_verification_email
+from .email_service import send_verification_email, send_forgotpassword_email
 
 fernet_key = b'G77fOK591dHIvWYBsyRXsK2w_-6MRiF9g-L2JzOmuiE='
 
@@ -112,3 +112,47 @@ def logout_view(request):
     if request.user.is_authenticated:
         auth.logout(request)
     return redirect('signin')
+
+def forgot_password_view(request):
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            post_data = json.loads(request.body)
+            email = post_data['email']
+            if User.objects.filter(email=email):
+                user = User.objects.get(email=email)
+                if user.account_verified:
+                    forgot_password_token = binascii.hexlify(os.urandom(50)).decode()
+                    user.forgot_password_tone = forgot_password_token
+                    user.token_creation_time = datetime.now(tz=timezone.utc)
+                    user.save()
+                    send_forgotpassword_email(user.email, user.username, request.build_absolute_uri(reverse(accounts_reset_password)+"?token="+forgot_password_token))
+                    return JsonResponse({"message": "success"}) #reset password view
+                else:
+                    return JsonResponse({"message": "unverified"}) #verify account
+            else:
+                return JsonResponse({"message": "error"}) #display error
+                
+        return render(request, 'accounts/forgot_password.html')
+        
+
+def accounts_reset_password_view(request):
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            post_data = json.loads(request.body)
+            email = post_data['email']
+            if User.objects.filter(email=email):
+                user = User.objects.get(email=email)
+                if not user.account_verified:
+                    forgot_password_token = binascii.hexlify(os.urandom(50)).decode()
+                    user.signin_token = signin_token
+                    user.token_creation_time = datetime.now(tz=timezone.utc)
+                    user.save()
+                    send_verification_email(user.email, user.username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
+                    return JsonResponse({"message": "success"})
+                else:
+                    return JsonResponse({"message": "verified"})
+            else:
+                return JsonResponse({"message": "error"})
+        else:
+            return render(request, 'accounts/forgot_password.html')
+    return redirect('home')
