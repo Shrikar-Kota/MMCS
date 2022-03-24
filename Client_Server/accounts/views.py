@@ -1,43 +1,114 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
-from .models import User
 from django.contrib.auth.models import auth
+from django.urls import reverse
+from django.utils import timezone
+from datetime import datetime
 import json
+import binascii, os
+from cryptography.fernet import Fernet
+
+from .models import User
+from .email_service import send_verification_email
+
+fernet_key = b'G77fOK591dHIvWYBsyRXsK2w_-6MRiF9g-L2JzOmuiE='
 
 # Create your views here.
 def accounts_home_view(request):
-    return render(request, 'accounts/home.html')
+    if not request.user.is_authenticated:
+        token = request.GET.get('token', "")
+        if token == "":
+            return redirect(signin_view)
+        try:
+            email = Fernet(fernet_key).decrypt(token.encode()).decode()
+            if User.objects.filter(email=email):
+                return render(request, 'accounts/home.html', {"email": email})
+            else:
+                return redirect('signin')
+        except:
+            return redirect('signin')
+    return redirect('home')
     
 def signin_view(request):
-    if request.method == 'POST':
-        post_data = json.loads(request.body)
-        email = post_data['email']
-        password = post_data['password']
-        user = auth.authenticate(email=email, password=password)
-        if user is not None:
-            auth.login(request, user)
-            return JsonResponse({"message": "Success"})
-        else:
-            return JsonResponse({"message": "Error"})
-    return render(request, 'accounts/signin.html')
+    if not request.user.is_authenticated:    
+        if request.method == 'POST':
+            post_data = json.loads(request.body)
+            email = post_data['email']
+            password = post_data['password']
+            user = auth.authenticate(email=email, password=password)
+            if user is not None:
+                if user.account_verified:
+                    auth.login(request, user)
+                    return JsonResponse({"message": "valid"})
+                else:
+                    return JsonResponse({"message": "unverified"})
+            else:
+                return JsonResponse({"message": "invalid"})
+        return render(request, 'accounts/signin.html')
+    return redirect('home')
 
 def signup_view(request):
+    if not request.user.is_authenticated:
+        if request.method == 'POST':
+            post_data = json.loads(request.body)
+            username = post_data['username']
+            email = post_data['email']
+            password = post_data['password']
+            if User.objects.filter(email=email):
+                return JsonResponse({"message": "invalid"})
+            else:
+                signin_token = binascii.hexlify(os.urandom(50)).decode()
+                user = User.objects.create_user(username=username, email=email, password=password, signin_token=signin_token)
+                user.save()
+                send_verification_email(user.email, username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
+                email_token = Fernet(fernet_key).encrypt(user.email.encode()).decode()
+                return JsonResponse({"message": "valid", "token": email_token})
+            
+        return render(request, 'accounts/signup.html')
+    return redirect('home')
+
+def verify_view(request):
+    if not request.user.is_authenticated:
+        token = request.GET.get('token', "")
+        if token == "":
+            return redirect('signin')
+        else:
+            user = User.objects.filter(signin_token=token)
+            if user:
+                user = User.objects.get(signin_token=token)
+                if (user.token_creation_time - datetime.now(tz=timezone.utc)).total_seconds() < 20:
+                    user.account_verified = True
+                    user.signin_token = None
+                    user.token_creation_time = None
+                    user.save()
+                    return render(request, 'accounts/verify.html', {"token_expired": False, "email": user.email})
+                else:
+                    return render(request, 'accounts/verify.html', {"token_expired": True, "email": user.email})                
+            else:
+                return redirect('signin')
+    else:
+        return redirect('home')
+    
+def resend_verificationmail_view(request):
     if request.method == 'POST':
         post_data = json.loads(request.body)
-        username = post_data['username']
         email = post_data['email']
-        password = post_data['password']
         if User.objects.filter(email=email):
-            return JsonResponse({"message": "Error"})
+            user = User.objects.get(email=email)
+            if not user.account_verified:
+                signin_token = binascii.hexlify(os.urandom(50)).decode()
+                user.signin_token = signin_token
+                user.token_creation_time = datetime.now(tz=timezone.utc)
+                user.save()
+                send_verification_email(user.email, user.username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
+                return JsonResponse({"message": "success"})
+            else:
+                return JsonResponse({"message": "verified"})
         else:
-            user = User.objects.create_user(username, email, password)
-            user.save()
-            return JsonResponse({"message": "Success"})
+            return JsonResponse({"message": "error"})
+    return redirect('signin')
         
-    return render(request, 'accounts/signup.html')
-
-def verify_view(request, token=None):
-    if token == None:
-        return redirect(request, signin_view)
-    else:
-        pass
+def logout_view(request):
+    if request.user.is_authenticated:
+        auth.logout(request)
+    return redirect('signin')

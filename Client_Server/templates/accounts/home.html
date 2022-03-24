@@ -5,8 +5,9 @@
 <head>
     <title>MMCS</title>
     <!-- Third Party Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Custom Scripts -->
-    <script type="text/javascript" src="{%static 'accounts/signin.js' %}"></script>
+    <script type="text/javascript" src="{%static 'accounts/resend_email.js' %}"></script>
     <!-- Third Party CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
@@ -14,19 +15,31 @@
         .rounded-border {
             border-radius: 1rem !important;
         }
+        .invisible {
+            display: none;
+        }
     </style>
 </head>
 
 <body onload="performOnLoad()">
-    <div class="col-12 vh-100">
+    <div class="col-12">
         <div class="col-12 mx-auto my-5 shadow-lg border rounded-border p-4">
             <h1>One step away!</h1>
             <br>
             <p>
-                An email has been sent to the registered email id. Please click the link mentioned in the email sent to verify your account. Account gets created only after the verification is done.
+                An email has been sent to the registered email id <b>{{email}}</b>. Please click the link mentioned in the email sent to verify your account. Account gets created only after the verification is done.
             </p>
+            <br>
+            <button class="btn btn-md btn-primary" id="resendemail-btn">Resend Email</button>
+            <div id="info-message" class="small invisible mt-3">(Email has been re-sent successfullly!)</div><div id="error-message" class="small invisible text-danger mt-3">(An error occured while sending the email. Please try again later.)</div>
         </div>
+        {% csrf_token %}
     </div>
+    <script>
+        const email = "{{ email|safe }}";
+        const resendvmailurl = "{% url 'resend_vmail' %}";
+        const homeurl = "{% url 'home' %}";
+    </script>
 </body>
 
 </html>

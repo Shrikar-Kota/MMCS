@@ -13,12 +13,19 @@
 </head>
 
 <body>
-    <div class="col-12 d-flex align-items-center vh-100">
-        Welcome to MMCS.
-        <a href="#">Logout</a>
+    <div class="col-12">
+        <div class="col-12 mx-auto my-5 shadow-lg border rounded-border p-4">
+            <h1>Welcome to MMCS!</h1>
+            <br>
+            <p>
+                Site under construction.
+            </p>
+            <br>
+            <a class="btn btn-md btn-primary" href="{% url 'logout' %}">Logout</a>
+        </div>
     </div>
     <script>
-        var registrationurl = "{% url 'signup' %}";
+        var loginurl = "{% url 'signin' %}";
     </script>
 </body>
 
