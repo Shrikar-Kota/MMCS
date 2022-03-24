@@ -5,6 +5,7 @@
 <head>
     <title>MMCS</title>
     <!-- Third Party Scripts -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <!-- Custom Scripts -->
     <script type="text/javascript" src="{%static 'accounts/signin.js' %}"></script>
     <!-- Third Party CSS -->
@@ -54,6 +55,11 @@
             </div>
         </div>
     </div>
+    <script>
+        const summarizerhomeurl = "{% url 'home' %}";
+        const loginurl = "{% url 'signin' %}";
+        const accountshomeurl = "{% url 'accounts_home' %}";
+    </script>
 </body>
 
 </html>

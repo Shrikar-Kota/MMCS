@@ -1,10 +1,12 @@
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import auth
+from django.urls import reverse
+from django.utils import timezone
+from datetime import datetime
 import json
 import binascii, os
 from cryptography.fernet import Fernet
-from django.urls import reverse
 
 from .models import User
 from .email_service import send_verification_email
@@ -21,9 +23,9 @@ def accounts_home_view(request):
         if User.objects.filter(email=email):
             return render(request, 'accounts/home.html', {"email": email})
         else:
-            return redirect(signin_view)
+            return redirect('signin')
     except:
-        return redirect(signin_view)
+        return redirect('signin')
     
 def signin_view(request):
     if request.method == 'POST':
@@ -32,10 +34,13 @@ def signin_view(request):
         password = post_data['password']
         user = auth.authenticate(email=email, password=password)
         if user is not None:
-            auth.login(request, user)
-            return JsonResponse({"message": "Success"})
+            if user.account_verified:
+                auth.login(request, user)
+                return JsonResponse({"message": "valid"})
+            else:
+                return JsonResponse({"message": "unverified"})
         else:
-            return JsonResponse({"message": "Error"})
+            return JsonResponse({"message": "invalid"})
     return render(request, 'accounts/signin.html')
 
 def signup_view(request):
@@ -45,20 +50,56 @@ def signup_view(request):
         email = post_data['email']
         password = post_data['password']
         if User.objects.filter(email=email):
-            return JsonResponse({"message": "Error"})
+            return JsonResponse({"message": "invalid"})
         else:
             signin_token = binascii.hexlify(os.urandom(50)).decode()
             user = User.objects.create_user(username=username, email=email, password=password, signin_token=signin_token)
             user.save()
-            send_verification_email(email, reverse('verify_view')+"?token="+signin_token)
+            send_verification_email(user.email, username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
             email_token = Fernet(fernet_key).encrypt(user.email.encode()).decode()
-            return JsonResponse({"message": "Success", "token": email_token})
+            return JsonResponse({"message": "valid", "token": email_token})
         
     return render(request, 'accounts/signup.html')
 
 def verify_view(request):
     token = request.GET.get('token', "")
     if token == "":
-        return token
+        return redirect('signin')
     else:
-        return "Invalid token"
+        user = User.objects.filter(signin_token=token)
+        if user:
+            user = User.objects.get(signin_token=token)
+            if (user.token_creation_time - datetime.now(tz=timezone.utc)).total_seconds() < 20:
+                user.account_verified = True
+                user.signin_token = None
+                user.token_creation_time = None
+                user.save()
+                return render(request, 'accounts/verify.html', {"token_expired": False, "email": user.email})
+            else:
+                return render(request, 'accounts/verify.html', {"token_expired": True, "email": user.email})                
+        else:
+            return redirect('signin')
+        
+def resend_verificationmail_view(request):
+    if request.method == 'POST':
+        post_data = json.loads(request.body)
+        email = post_data['email']
+        if User.objects.filter(email=email):
+            user = User.objects.get(email=email)
+            if not user.account_verified:
+                signin_token = binascii.hexlify(os.urandom(50)).decode()
+                user.signin_token = signin_token
+                user.token_creation_time = datetime.now(tz=timezone.utc)
+                user.save()
+                send_verification_email(user.email, user.username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
+                return JsonResponse({"message": "success"})
+            else:
+                return JsonResponse({"message": "verified"})
+        else:
+            return JsonResponse({"message": "error"})
+    return redirect('signin')
+        
+def logout_view(request):
+    if request.user.is_authenticated:
+        auth.logout(request)
+    return redirect('signin')

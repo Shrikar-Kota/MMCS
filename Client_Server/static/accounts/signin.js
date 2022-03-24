@@ -52,29 +52,33 @@ const validateFields = (fieldname) => {
 const loginUser = (event) => {
     event.preventDefault();
     if (validateFields("all")){
-        let registrationdata = {
+        let logindata = {
             "email": document.querySelector("#emailField").value,
             "password": document.querySelector("#passwordField").value 
         }
         let csrftoken = getCookie('csrftoken');
         $.ajax({
             type: 'post',
-            url: registrationurl,
+            url: loginurl,
             dataType: 'json',
-            data: JSON.stringify(registrationdata),
+            data: JSON.stringify(logindata),
             headers: { "X-CSRFToken": csrftoken},
             beforeSend: function() {
-                document.querySelector("#error-message").classList.add("invisible")
+                document.querySelector("#error-message").classList.add("invisible");
+                document.querySelector("#signin-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>"
             },
             success: function (response){
-                if (response['message'] == 'Error'){
+                document.querySelector("#signin-btn").innerHTML = "Sign In";
+                if (response['message'] == 'invalid'){
                     document.querySelector("#error-message").classList.remove("invisible");
-                    document.querySelector("#emailField").focus();
+                }else if (response['message'] == 'valid'){
+                    window.location.href = summarizerhomeurl;
                 }else{
-                    alert("Login done!")
+                    window.location.href = accountshomeurl;
                 }
             },
             error: function(){
+                document.querySelector("#signin-btn").innerHTML = "Sign In";
                 alert("Something went wrong! Try again later!");
             }
         })
@@ -89,7 +93,6 @@ const getCookie = (name) => {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;

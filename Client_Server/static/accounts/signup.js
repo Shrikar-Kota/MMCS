@@ -117,17 +117,20 @@ const registerUser = (event) => {
             data: JSON.stringify(registrationdata),
             headers: { "X-CSRFToken": csrftoken},
             beforeSend: function() {
-                document.querySelector("#error-message").classList.add("invisible")
+                document.querySelector("#error-message").classList.add("invisible");
+                document.querySelector("#signup-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>";
             },
             success: function (response){
-                if (response['message'] == 'Error'){
+                document.querySelector("#signup-btn").innerHTML = "Create Account";
+                if (response['message'] == 'invalid'){
                     document.querySelector("#error-message").classList.remove("invisible");
                     document.querySelector("#emailField").focus();
                 }else{
-                    window.location.href = accounts_home + "?token=" + response['token'];
+                    window.location.href = accountshomeurl + "?token=" + response['token'];
                 }
             },
             error: function(){
+                document.querySelector("#signup-btn").innerHTML = "Create Account";
                 alert("Something went wrong! Try again later!");
             }
         })
@@ -142,7 +145,6 @@ const getCookie = (name) => {
         var cookies = document.cookie.split(';');
         for (var i = 0; i < cookies.length; i++) {
             var cookie = cookies[i].trim();
-            // Does this cookie string begin with the name we want?
             if (cookie.substring(0, name.length + 1) === (name + '=')) {
                 cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                 break;
