@@ -4,6 +4,7 @@ const performOnLoad = () => {
         ele.addEventListener("input", validateInput);
     })
     document.querySelector("#signin-btn").addEventListener("click", loginUser);
+    document.querySelector("#signin-btn").disabled = true;
 };
 const validateInput = (event) => {
     if (validateFields(event.target.id)){

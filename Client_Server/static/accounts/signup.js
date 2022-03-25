@@ -9,6 +9,7 @@ const performOnLoad = () => {
     })
     document.querySelector("#confirmPasswordField").addEventListener("click", validateInput);
     document.querySelector("#signup-btn").addEventListener("click", registerUser);
+    document.querySelector("#signup-btn").disabled = true
 };
 
 const displayInfo = (event) => {

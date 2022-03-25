@@ -1,11 +1,26 @@
+var emailid = "";
+
 const performOnLoad = () => {
+    document.querySelector("#emailField").value = "";
+    document.querySelector("#emailField").addEventListener("input", validateInput);
     document.querySelector("#sendemail-btn").addEventListener("click", sendEmail);
+    document.querySelector("#sendemail-btn").disabled = true;
+    document.querySelector("#resendvemail-btn").addEventListener("click", resendVerificationEmail);
 };
+
+const validateInput = (event) => {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(event.target.value)){
+        emailid = event.target.value;
+        document.querySelector("#sendemail-btn").disabled = false;
+    }else{
+        document.querySelector("#sendemail-btn").disabled = true;
+    }
+}
 
 const sendEmail = (event) => {
     event.preventDefault();
     let postdata = {
-        "email": email,
+        "email": document.querySelector('#emailField').value,
     }
     let csrftoken = getCookie('csrftoken');
     $.ajax({
@@ -18,6 +33,7 @@ const sendEmail = (event) => {
             document.querySelector("#info-message").classList.add("invisible");
             document.querySelector("#error-message").classList.add("invisible");
             document.querySelector("#resend-vemail").classList.add('invisible');
+            document.querySelector("#resend-vemail-result").classList.add('invisible');
             document.querySelector("#sendemail-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>"
         },
         success: function (response){
@@ -32,6 +48,38 @@ const sendEmail = (event) => {
         },
         error: function(){
             document.querySelector("#sendemail-btn").innerHTML = "Submit";
+            alert("Something went wrong! Try again later!");
+        }
+    })
+}
+
+const resendVerificationEmail = (event) => {
+    event.preventDefault();
+    let postdata = {
+        "email": emailid,
+    }
+    let csrftoken = getCookie('csrftoken');
+    $.ajax({
+        type: 'post',
+        url: resendvmailurl,
+        dataType: 'json',
+        data: JSON.stringify(postdata),
+        headers: { "X-CSRFToken": csrftoken},
+        beforeSend: function() {
+            document.querySelector("#resend-vemail-result").classList.add('invisible');
+        },
+        success: function (response){
+            if (response['message'] == 'success'){
+                document.querySelector("#resend-vemail-result").innerHTML = "(Email has been re-sent successfullly!)";
+                document.querySelector("#resend-vemail-result").classList.remove("invisible");
+            }else if (response['message'] == 'error'){
+                document.querySelector("#resend-vemail-result").innerHTML = "<span class='text-danger'>(An error occured while sending the email. Please try again later.)</span>";
+                document.querySelector("#resend-vemail-result").classList.remove("invisible");
+            } else{
+                window.location.href = homeurl;
+            }
+        },
+        error: function(){
             alert("Something went wrong! Try again later!");
         }
     })

@@ -93,6 +93,7 @@ def resend_verificationmail_view(request):
     if request.method == 'POST':
         post_data = json.loads(request.body)
         email = post_data['email']
+        print(email)
         if User.objects.filter(email=email):
             user = User.objects.get(email=email)
             if not user.account_verified:
@@ -125,7 +126,7 @@ def forgot_password_view(request):
                     user.forgot_password_tone = forgot_password_token
                     user.token_creation_time = datetime.now(tz=timezone.utc)
                     user.save()
-                    send_forgotpassword_email(user.email, user.username, request.build_absolute_uri(reverse(accounts_reset_password)+"?token="+forgot_password_token))
+                    send_forgotpassword_email(user.email, user.username, request.build_absolute_uri(reverse(accounts_reset_password_view)+"?token="+forgot_password_token))
                     return JsonResponse({"message": "success"})
                 else:
                     return JsonResponse({"message": "unverified"})
@@ -154,5 +155,5 @@ def accounts_reset_password_view(request):
             else:
                 return JsonResponse({"message": "error"})
         else:
-            return render(request, 'accounts/forgot_password.html')
+            return render(request, 'accounts/reset_password.html')
     return redirect('home')
