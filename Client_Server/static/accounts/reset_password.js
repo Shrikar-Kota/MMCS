@@ -75,29 +75,41 @@ const resetPassword = (event) => {
     event.preventDefault();
     if (validateFields("all")){
         let postdata = {
-            "password": document.querySelector("#passwordField").value 
+            "token": token,
+            "password": document.querySelector("#passwordField").value
         }
         let csrftoken = getCookie('csrftoken');
         $.ajax({
             type: 'post',
-            url: registrationurl,
+            url: accountsresetpasswordurl,
             dataType: 'json',
             data: JSON.stringify(postdata),
             headers: { "X-CSRFToken": csrftoken},
             beforeSend: function() {
+                document.querySelector("#resetp-btn").disabled = true;
                 document.querySelector("#resetp-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>";
             },
             success: function (response){
-                document.querySelector("#resetp-btn").innerHTML = "Create Account";
+                document.querySelector("#resetp-btn").disabled = false;
+                document.querySelector("#resetp-btn").innerHTML = "Reset";
                 if (response['message'] == 'invalid'){
-                    document.querySelector("#emailField").focus();
+                    document.querySelector("#invalid-token").classList.remove("invisible");
+                    document.querySelector("#reset-password-window").classList.add("invisible");
+                    document.querySelector("#reset-password-window").innerHTML = "";
+                    document.querySelector("#reset-successful").classList.add("invisible");
+                    document.querySelector("#reset-successful").innerHTML = "";
                 }else{
-                    window.location.href = accountshomeurl + "?token=" + response['token'];
+                    document.querySelector("#invalid-token").classList.add("invisible");
+                    document.querySelector("#invalid-token").innerHTML = "";
+                    document.querySelector("#reset-password-window").classList.add("invisible");
+                    document.querySelector("#reset-password-window").innerHTML = "";
+                    document.querySelector("#reset-successful").classList.remove("invisible");
                 }
             },
             error: function(){
-                document.querySelector("#resetp-btn").innerHTML = "Create Account";
-                alert("Something went wrong! Try again later!");
+                document.querySelector("#resetp-btn").disabled = false;
+                document.querySelector("#resetp-btn").innerHTML = "Reset";
+                window.location.href = homeurl;
             }
         })
     }else{

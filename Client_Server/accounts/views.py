@@ -1,3 +1,4 @@
+from turtle import pos
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib.auth.models import auth
@@ -76,7 +77,7 @@ def verify_view(request):
             user = User.objects.filter(signin_token=token)
             if user:
                 user = User.objects.get(signin_token=token)
-                if (user.token_creation_time - datetime.now(tz=timezone.utc)).total_seconds() < 20:
+                if (datetime.now(tz=timezone.utc) - user.token_creation_time).total_seconds()/360 <= 24:
                     user.account_verified = True
                     user.signin_token = None
                     user.token_creation_time = None
@@ -93,7 +94,6 @@ def resend_verificationmail_view(request):
     if request.method == 'POST':
         post_data = json.loads(request.body)
         email = post_data['email']
-        print(email)
         if User.objects.filter(email=email):
             user = User.objects.get(email=email)
             if not user.account_verified:
@@ -123,7 +123,7 @@ def forgot_password_view(request):
                 user = User.objects.get(email=email)
                 if user.account_verified:
                     forgot_password_token = binascii.hexlify(os.urandom(50)).decode()
-                    user.forgot_password_tone = forgot_password_token
+                    user.forgot_password_token = forgot_password_token
                     user.token_creation_time = datetime.now(tz=timezone.utc)
                     user.save()
                     send_forgotpassword_email(user.email, user.username, request.build_absolute_uri(reverse(accounts_reset_password_view)+"?token="+forgot_password_token))
@@ -132,28 +132,41 @@ def forgot_password_view(request):
                     return JsonResponse({"message": "unverified"})
             else:
                 return JsonResponse({"message": "error"})
-                
         return render(request, 'accounts/forgot_password.html')
         
-
 def accounts_reset_password_view(request):
     if not request.user.is_authenticated:
         if request.method == 'POST':
-            post_data = json.loads(request.body)
-            email = post_data['email']
-            if User.objects.filter(email=email):
-                user = User.objects.get(email=email)
-                if not user.account_verified:
-                    forgot_password_token = binascii.hexlify(os.urandom(50)).decode()
-                    user.signin_token = signin_token
-                    user.token_creation_time = datetime.now(tz=timezone.utc)
-                    user.save()
-                    send_verification_email(user.email, user.username, request.build_absolute_uri(reverse(verify_view)+"?token="+signin_token))
-                    return JsonResponse({"message": "success"})
-                else:
-                    return JsonResponse({"message": "verified"})
+            postdata = json.loads(request.body)
+            token = postdata['token']
+            if token == "":
+                return redirect('signin')
             else:
-                return JsonResponse({"message": "error"})
+                user = User.objects.filter(forgot_password_token=token)
+                if user:
+                    user = User.objects.get(forgot_password_token=token)
+                    if (datetime.now(tz=timezone.utc) - user.token_creation_time).total_seconds()/60 > 10:
+                        return JsonResponse({"message": "invalid"})
+                    else:
+                        user.set_password(postdata['password'])
+                        user.token_creation_time = None
+                        user.forgot_password_token = None
+                        user.save()
+                        return JsonResponse({"message": "valid"})                
+                else:
+                    return redirect('signin')
         else:
-            return render(request, 'accounts/reset_password.html')
+            token = request.GET.get('token', "")
+            if token == "":
+                return redirect('signin')
+            else:
+                user = User.objects.filter(forgot_password_token=token)
+                if user:
+                    user = User.objects.get(forgot_password_token=token)
+                    if (datetime.now(tz=timezone.utc) - user.token_creation_time).total_seconds()/60 > 10:
+                        return render(request, 'accounts/reset_password.html', {"token": token, "token_invalid": True})
+                    else:
+                        return render(request, 'accounts/reset_password.html', {"token": token, "token_invalid": False, "email": user.email})                
+                else:
+                    return redirect('signin')
     return redirect('home')

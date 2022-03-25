@@ -65,10 +65,12 @@ const loginUser = (event) => {
             data: JSON.stringify(logindata),
             headers: { "X-CSRFToken": csrftoken},
             beforeSend: function() {
+                document.querySelector("#signin-btn").disabled = true;
                 document.querySelector("#error-message").classList.add("invisible");
                 document.querySelector("#signin-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>"
             },
             success: function (response){
+                document.querySelector("#signin-btn").disabled = false;
                 document.querySelector("#signin-btn").innerHTML = "Sign In";
                 if (response['message'] == 'invalid'){
                     document.querySelector("#error-message").classList.remove("invisible");
@@ -79,8 +81,9 @@ const loginUser = (event) => {
                 }
             },
             error: function(){
+                document.querySelector("#signin-btn").disabled = false;
                 document.querySelector("#signin-btn").innerHTML = "Sign In";
-                alert("Something went wrong! Try again later!");
+                window.location.href = homeurl;
             }
         })
     }else{

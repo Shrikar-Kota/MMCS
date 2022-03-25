@@ -118,10 +118,12 @@ const registerUser = (event) => {
             data: JSON.stringify(registrationdata),
             headers: { "X-CSRFToken": csrftoken},
             beforeSend: function() {
+                document.querySelector("#signup-btn").disabled = true;
                 document.querySelector("#error-message").classList.add("invisible");
                 document.querySelector("#signup-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>";
             },
             success: function (response){
+                document.querySelector("#signup-btn").disabled = false;
                 document.querySelector("#signup-btn").innerHTML = "Create Account";
                 if (response['message'] == 'invalid'){
                     document.querySelector("#error-message").classList.remove("invisible");
@@ -131,8 +133,9 @@ const registerUser = (event) => {
                 }
             },
             error: function(){
+                document.querySelector("#signup-btn").disabled = false;
                 document.querySelector("#signup-btn").innerHTML = "Create Account";
-                alert("Something went wrong! Try again later!");
+                window.location.href = homeurl;
             }
         })
     }else{

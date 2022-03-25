@@ -15,11 +15,13 @@ const resendEmail = (event) => {
         data: JSON.stringify(postdata),
         headers: { "X-CSRFToken": csrftoken},
         beforeSend: function() {
+            document.querySelector("#resendemail-btn").disabled = true;
             document.querySelector("#info-message").classList.add("invisible");
             document.querySelector("#error-message").classList.add("invisible");
             document.querySelector("#resendemail-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>"
         },
         success: function (response){
+            document.querySelector("#resendemail-btn").disabled = false;
             document.querySelector("#resendemail-btn").innerHTML = "Resend Email";
             if (response['message'] == 'success'){
                 document.querySelector("#info-message").classList.remove("invisible");
@@ -30,8 +32,9 @@ const resendEmail = (event) => {
             }
         },
         error: function(){
+            document.querySelector("#resendemail-btn").disabled = false;
             document.querySelector("#resendemail-btn").innerHTML = "Resend Email";
-            alert("Something went wrong! Try again later!");
+            window.location.href = homeurl;
         }
     })
 }

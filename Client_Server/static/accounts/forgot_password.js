@@ -30,6 +30,7 @@ const sendEmail = (event) => {
         data: JSON.stringify(postdata),
         headers: { "X-CSRFToken": csrftoken},
         beforeSend: function() {
+            document.querySelector("#sendemail-btn").disabled = true;
             document.querySelector("#info-message").classList.add("invisible");
             document.querySelector("#error-message").classList.add("invisible");
             document.querySelector("#resend-vemail").classList.add('invisible');
@@ -37,6 +38,7 @@ const sendEmail = (event) => {
             document.querySelector("#sendemail-btn").innerHTML = "<div class='spinner-border text-light' role='status'></div>"
         },
         success: function (response){
+            document.querySelector("#sendemail-btn").disabled = false;
             document.querySelector("#sendemail-btn").innerHTML = "Submit";
             if (response['message'] == 'success'){
                 document.querySelector("#info-message").classList.remove("invisible");
@@ -47,8 +49,9 @@ const sendEmail = (event) => {
             }
         },
         error: function(){
+            document.querySelector("#sendemail-btn").disabled = false;
             document.querySelector("#sendemail-btn").innerHTML = "Submit";
-            alert("Something went wrong! Try again later!");
+            window.location.href = homeurl;
         }
     })
 }
@@ -66,9 +69,11 @@ const resendVerificationEmail = (event) => {
         data: JSON.stringify(postdata),
         headers: { "X-CSRFToken": csrftoken},
         beforeSend: function() {
+            document.querySelector("#resendvemail-btn").removeEventListener("click", resendVerificationEmail);
             document.querySelector("#resend-vemail-result").classList.add('invisible');
         },
         success: function (response){
+            document.querySelector("#resendvemail-btn").addEventListener("click", resendVerificationEmail);
             if (response['message'] == 'success'){
                 document.querySelector("#resend-vemail-result").innerHTML = "(Email has been re-sent successfullly!)";
                 document.querySelector("#resend-vemail-result").classList.remove("invisible");
@@ -80,7 +85,8 @@ const resendVerificationEmail = (event) => {
             }
         },
         error: function(){
-            alert("Something went wrong! Try again later!");
+            document.querySelector("#resendvemail-btn").addEventListener("click", resendVerificationEmail);
+            window.location.href = homeurl;
         }
     })
 }
