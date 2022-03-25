@@ -126,11 +126,11 @@ def forgot_password_view(request):
                     user.token_creation_time = datetime.now(tz=timezone.utc)
                     user.save()
                     send_forgotpassword_email(user.email, user.username, request.build_absolute_uri(reverse(accounts_reset_password)+"?token="+forgot_password_token))
-                    return JsonResponse({"message": "success"}) #reset password view
+                    return JsonResponse({"message": "success"})
                 else:
-                    return JsonResponse({"message": "unverified"}) #verify account
+                    return JsonResponse({"message": "unverified"})
             else:
-                return JsonResponse({"message": "error"}) #display error
+                return JsonResponse({"message": "error"})
                 
         return render(request, 'accounts/forgot_password.html')
         
