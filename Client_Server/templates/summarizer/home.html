@@ -9,19 +9,149 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js"></script>
     <!-- Custom Scripts -->
+    <script type="text/javascript" src="{%static 'summarizer/upload.js' %}"></script>
     <!-- Third Party CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <script src="https://kit.fontawesome.com/d31630a62b.js"></script>
     <!-- Custom CSS -->
+    <style>
+        .rounded-border {
+            border-radius: 1rem !important;
+        }
+
+        .file-card {
+            background-color: #e9ecef;
+            border-color: #d4d9de;
+        }
+
+        .file-card-header {
+            font-size: medium;
+            font-weight: bolder;
+        }
+
+        .file-card-header a{
+            color: black;
+        }
+
+        .file-card-body {
+            font-size: small;
+            font-weight: normal;
+        }
+
+        #error-message {
+            border: 1px solid red;
+            border-radius: 0.5rem !important;
+            color: red;
+            background-color: #fceae8;
+            width: fit-content;
+            font-size: normal;
+        }
+
+        #success-message {
+            border: 1px solid #28a745;
+            border-radius: 0.5rem !important;
+            color: #24923e;
+            background-color: #a7fab9;
+            width: fit-content;
+            font-size: normal;
+        }
+
+        .invisible {
+            display: none;
+        }
+        #info-symbol {
+            font-size: small;
+            color: red;
+        }
+        #info-dialog {
+            background-color: white;
+            position: absolute;
+            font-size: small;
+            z-index: 100;
+        }
+    </style>
 </head>
 
 <body onload="performOnLoad()">
     {% include "./header.html" %}
+    {% csrf_token %}
+    <div class="col-12 d-flex align-items-center min-vh-100">
+        <div class="col-12 py-3">
+            <div class="col-6 mx-auto mt-5 mb-3 shadow border px-5 rounded-border">
+                <div class="form-row mt-5">
+                    <label class="mb-3">Note <span id="info-symbol">&#9432;</span></label>
+                    <div class="form-group my-auto col-12">
+                        <input type="file" name="uploadedFile" class="custom-file-input" id="fileinput"
+                            aria-describedby="inputGroupFileAddon01"
+                            accept="audio/mp3, audio/wav, audio/mpeg, video/mp4, video/mkv, video/mov, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, application/pdf, application/vnd.oasis.opendocument.text">
+                        <label class="custom-file-label" style="overflow:hidden" for="fileinput">Choose file</label>
+                    </div>
+                </div>
+                <div id="progressdiv" class="mx-auto my-3 invisible">
+
+                </div>
+                <div id="error-message" class="px-5 py-1 mx-auto my-3 invisible">
+
+                </div>
+                <div id="success-message" class="px-5 py-1 mx-auto my-3 invisible">
+                    File uploaded successfullly!
+                </div>
+                <div class="form-row my-4">
+                    <div class="form-group mx-auto my-auto col-3 text-center">
+                        <button class="btn btn-block text-center"
+                            style="background-color: #e9ecef; border-color: #d4d9de" id="uploadbtn">Upload</button>
+                        <button class="btn btn-block btn-danger text-center invisible" id="cancelbtn">Cancel</button>
+                    </div>
+                </div>
+            </div>
+            {% if notsummarizedpresent %}
+            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border"
+                style="max-height: 50vh; overflow-y: auto" id="filesuploadeddiv">
+                <div class="text-center mb-3">
+                    <h3>Files Uploaded</h3>
+                </div>
+                <div class="col-12">
+                    <div class="row" id="filesuploadedarea">
+                        {% for filedata in files_details %}
+                        <div class="file-card p-3 my-3 col-md-5 col-12 mx-auto">
+                            <div class="file-card-header">
+                                <a href="{{ filedata.fileurl }}" target="_blank">{{ filedata.filename }}</a>
+                            </div>
+                            <hr>
+                            <div class="file-card-body">
+                                Uploaded on: {{ filedata.uploaddate }}<br><br>
+                                File type: {{ filedata.filetype }}<br>
+                            </div>
+                            <hr>
+                            <div class="file-card-footer">
+                                <button class="btn btn-sm btn-primary" id="{{ filedata.fileid }}">Generate Summary</button>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border invisible"
+                style="max-height: 50vh; overflow-y: auto" id="filesuploadeddiv">
+                <div class="text-center mb-3">
+                    <h3>Files Uploaded</h3>
+                </div>
+                <div class="col-12">
+                    <div class="row" id="filesuploadedarea">
+                        
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    <div id="info-dialog" class="invisible border shadow-sm p-3 rounded-border">
+
+    </div>
     <script>
         var loginurl = "{% url 'signin' %}";
-        const performOnLoad = () => {
-            document.querySelector("#header-home").classList.add("active");
-        }
+        var homeurl = "{% url 'home' %}";
     </script>
 </body>
 
