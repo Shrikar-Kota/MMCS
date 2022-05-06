@@ -105,16 +105,16 @@ const uploadToServer = () => {
         },
         error: function (err) {
             progressBox.innerHTML = "";
-            alert("Internal server error!");
             return;
         },
         cache: false,
         contentType: false,
         processData: false,
+    }, () => {
+        cancelBtn.classList.add('invisible');
+        uploadBtn.classList.remove('invisible');
+        progressBox.classList.remove("invisible");
     })
-    cancelBtn.classList.add('invisible');
-    uploadBtn.classList.remove('invisible');
-    progressBox.classList.remove("invisible");
 }
 
 const getCookie = (name) => {
