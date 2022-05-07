@@ -1,1 +1,1 @@
-from . import key_frame_extractor
+from .key_frame_extractor import *

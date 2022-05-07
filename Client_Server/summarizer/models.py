@@ -33,7 +33,7 @@ class MediaDetails(models.Model):
         records = MediaDetails.objects.filter(user = User.objects.get(email=email)).order_by('uploaddate')
         files_details = []
         for file_data in records:
-            if file_data.status != 'k':
+            if file_data.status != 'UPLOADED':
                 files_details.append({
                     "filename": file_data.filename,
                     "uploaddate": file_data.uploaddate.strftime("%m/%d/%Y, %H:%M:%S")+" UTC",

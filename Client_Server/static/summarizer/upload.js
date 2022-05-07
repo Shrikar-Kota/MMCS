@@ -20,7 +20,7 @@ const uploadOnClick = () => {
         return;
     }
     let file = document.querySelector('#fileinput').files[0];
-    let allowed_mime_types = ['audio/mp3', 'audio/wav', 'audio/mpeg', 'video/mp4', 'video/mkv', 'video/mov', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/pdf', 'application/vnd.oasis.opendocument.text'];
+    let allowed_mime_types = ['audio/mp3', 'audio/wav', 'audio/mpeg', 'video/mp4', 'video/mkv', 'video/mov', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/pdf'];
     let allowed_size_mb = 1024;
 
     if (allowed_mime_types.indexOf(file.type) == -1) {
@@ -102,18 +102,21 @@ const uploadToServer = () => {
             if (response['notsummarizedpresent'])
                 reloadFileUploads(response['files_details']);
             document.querySelector("#success-message").classList.remove("invisible");
+            cancelBtn.classList.add('invisible')
+            uploadBtn.classList.remove('invisible')
+            progressBox.classList.remove("invisible")
         },
         error: function (err) {
             progressBox.innerHTML = "";
+            alert("Internal server error!");
+            cancelBtn.classList.add('invisible')
+            uploadBtn.classList.remove('invisible')
+            progressBox.classList.remove("invisible")
             return;
         },
         cache: false,
         contentType: false,
         processData: false,
-    }, () => {
-        cancelBtn.classList.add('invisible');
-        uploadBtn.classList.remove('invisible');
-        progressBox.classList.remove("invisible");
     })
 }
 
@@ -133,7 +136,7 @@ const getCookie = (name) => {
 }
 
 const getMediaExtension = (mimetype) => {
-    const extensions = { 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/mpeg': 'mpeg', 'video/mp4': 'mp4', 'video/mkv': 'mkv', 'video/mov': 'mov', 'application/msword': 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'text/plain': 'txt', 'application/pdf': 'pdf', 'application/vnd.oasis.opendocument.text': 'odt' };
+    const extensions = { 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/mpeg': 'mpeg', 'video/mp4': 'mp4', 'video/mkv': 'mkv', 'video/mov': 'mov', 'application/msword': 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'text/plain': 'txt', 'application/pdf': 'pdf'};
     return extensions[mimetype];
 }
 
