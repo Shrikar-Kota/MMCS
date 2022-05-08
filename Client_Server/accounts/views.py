@@ -20,13 +20,10 @@ def accounts_home_view(request):
         token = request.GET.get('token', "")
         if token == "":
             return redirect(signin_view)
-        try:
-            email = Fernet(fernet_key).decrypt(token.encode()).decode()
-            if User.objects.filter(email=email):
-                return render(request, 'accounts/home.html', {"email": email})
-            else:
-                return redirect('signin')
-        except:
+        email = Fernet(fernet_key).decrypt(token.encode()).decode()
+        if User.objects.filter(email=email):
+            return render(request, 'accounts/home.html', {"email": email})
+        else:
             return redirect('signin')
     return redirect('home')
     

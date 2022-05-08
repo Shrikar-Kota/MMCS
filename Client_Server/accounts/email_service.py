@@ -4,7 +4,7 @@ from email.mime.text import MIMEText
 port = 465
 smtp_server = "smtp.gmail.com"
 sender_email = "multimediacontentsummarizer@gmail.com"
-password = "kiran_9901"
+password = "3ed5ec66ca3003"
 
 
 def send_verification_email(receiver_email, username, url):
