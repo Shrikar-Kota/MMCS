@@ -49,5 +49,8 @@ def home_view(request):
 def archives_view(request):
     if request.user.is_authenticated:
         files_details = MediaDetails.getFileDetails(email=request.user.email)
+        emailhash = hashlib.md5(request.user.email.encode()).hexdigest()
+        for file_data in files_details:
+            file_data['fileurl'] = request.build_absolute_uri(f'/media/{emailhash}/summary/{file_data["file_id"]}')
         return render(request, 'summarizer/archives.html', {"notsummarizedpresent": len(files_details), "files_details": files_details})
     return redirect('signin')

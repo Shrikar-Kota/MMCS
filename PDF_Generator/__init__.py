@@ -1,1 +1,1 @@
-from .generate_summary_pdf import *
+from .generate_summary_pdf import generate_summary_pdf

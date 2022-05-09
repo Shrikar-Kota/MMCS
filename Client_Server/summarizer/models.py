@@ -39,6 +39,19 @@ class MediaDetails(models.Model):
                     "uploaddate": file_data.uploaddate.strftime("%m/%d/%Y, %H:%M:%S")+" UTC",
                     "filetype": file_data.filetype,
                     "fileid": file_data.fileid,
-                    "status": file_data.status
+                    "status": file_data.status,
                 })
         return files_details
+    
+    @staticmethod
+    def getOldestRequest():
+        latest_record = MediaDetails.objects.filter(status='UPLOADED').order_by('uploaddate')
+        if latest_record:
+            return latest_record[0]
+        return []
+        
+    @staticmethod
+    def updateStatus(user, fileid, status):
+        media_data = MediaDetails.objects.get(user=user, fileid = fileid)
+        media_data.status = status
+        media_data.save()

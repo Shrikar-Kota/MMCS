@@ -1,1 +1,1 @@
-from .key_frame_extractor import *
+from .key_frame_extractor import extract_key_frames_from_video

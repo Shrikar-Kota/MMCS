@@ -1,1 +1,1 @@
-from .audio_video_separator import *
+from .audio_video_separator import get_audio_from_video

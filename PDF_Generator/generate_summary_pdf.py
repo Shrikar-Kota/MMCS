@@ -6,7 +6,7 @@ from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Image, Tabl
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import inch
 
-def getSummary(SUMMARY_PATH, emailhash, fileid, IMAGES_PATH = None):
+def generate_summary_pdf(SUMMARY_PATH, emailhash, fileid, IMAGES_PATH = None):
     OUTPUT_PATH = os.path.join(os.path.join(Path(SUMMARY_PATH).parent.parent, emailhash), "SUMMARY")
     doc = SimpleDocTemplate(os.path.join(OUTPUT_PATH, f"{fileid}_SUMMARY.pdf"),pagesize=letter,
                         rightMargin=72,leftMargin=72,
@@ -41,5 +41,4 @@ def getSummary(SUMMARY_PATH, emailhash, fileid, IMAGES_PATH = None):
         Story.append(Table([[Image(os.path.join(IMAGES_PATH, f"{fileid}_{len(os.listdir(IMAGES_PATH))-2}.jpeg"), 3.5 * inch, 2.5 * inch)]],
             colWidths=[4.5 * inch, 4.5 * inch],
             rowHeights=[3.5 * inch], style=chart_style))
-    print(Story)
     doc.build(Story)

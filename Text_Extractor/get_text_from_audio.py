@@ -6,12 +6,12 @@ from pathlib import Path
 
 r = sr.Recognizer()
 
-def get_text_from_audio(FILE_SOURCE, fileid, emailhash):
+def get_text_from_audio(INPUT_PATH, fileid, emailhash):
     whole_text = ""
     try:
-        folder_name = os.path.join(Path(FILE_SOURCE).parent.parent.parent.parent, "Text_Extractor_Media")
+        folder_name = os.path.join(Path(INPUT_PATH).parent.parent.parent.parent, "Text_Extractor_Media")
     
-        sound = AudioSegment.from_file(FILE_SOURCE, "wav")
+        sound = AudioSegment.from_file(INPUT_PATH, "wav")
         chunks = split_on_silence(sound,
             min_silence_len = 500,
             silence_thresh = sound.dBFS-14,

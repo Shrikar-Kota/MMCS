@@ -37,18 +37,18 @@ class Video1(Video):
         if not os.path.isdir(self.temp_folder):
             os.makedirs(self.temp_folder)
 
-def extractKeyFrames(FILE_PATH, fileid, emailhash):
-    OUTPUT_PATH = os.path.join(Path(FILE_PATH).parent.parent.parent.parent, "Key_Frame_Extractor_Media")
+def extractKeyFrames(INPUT_PATH, fileid, emailhash):
+    OUTPUT_PATH = os.path.join(Path(INPUT_PATH).parent.parent.parent.parent, "Key_Frame_Extractor_Media")
     OUTPUT_PATH = os.path.join(os.path.join(OUTPUT_PATH, emailhash), fileid)
     vd = Video1(clip_path = os.path.join(OUTPUT_PATH, 'clipped'))
     diskwriter = KeyFrameExtractor(location=OUTPUT_PATH)
     vd.extract_video_keyframes(
-        no_of_frames=15, file_path=FILE_PATH,
+        no_of_frames=15, file_path=INPUT_PATH,
         writer=diskwriter
     )
     return OUTPUT_PATH
 
 if __name__ == '__main__':
-    def extract_key_frames_from_video(FILE_PATH, fileid, emailhash):
-        return extractKeyFrames(FILE_PATH, fileid, emailhash)
-    print(extract_key_frames_from_video("D:/Shrikar/Projects/Multimedia_Summarization/Project/Code/Media/36f05f601808a523f6bad7751af46499/INPUT/VIDEO/abc.mp4", "172381263378126", "djhakjhdkjshdkjhaj"))
+    def extract_key_frames_from_video(INPUT_PATH, fileid, emailhash):
+        return extractKeyFrames(INPUT_PATH, fileid, emailhash)
+    
