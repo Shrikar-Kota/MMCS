@@ -13,7 +13,7 @@ def generate_summary():
         print("No media found")
         return
     print("Data Found")
-    
+    #Creating Directories if not present
     emailhash = hashlib.md5(media_data['email'].encode()).hexdigest()
     updateStatus(email=media_data['email'], fileid=media_data['fileid'], status='PROCESSING')
     if media_data['filetype'] == 'TEXT':
