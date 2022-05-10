@@ -9,6 +9,7 @@ const performOnLoad = () => {
         var fileName = event.target.value.split("\\").pop();
         event.target.nextElementSibling.innerHTML = fileName;
     });
+    addEventsToGenerateSummaryButtons();
 }
 
 const uploadOnClick = () => {
@@ -20,7 +21,7 @@ const uploadOnClick = () => {
         return;
     }
     let file = document.querySelector('#fileinput').files[0];
-    let allowed_mime_types = ['audio/mp3', 'audio/wav', 'audio/mpeg', 'video/mp4', 'video/mkv', 'video/mov', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/pdf'];
+    let allowed_mime_types = ['audio/mpeg', 'audio/wav', 'video/mp4', 'video/mkv', 'video/mov', 'video/mpeg','application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain', 'application/pdf'];
     let allowed_size_mb = 1024;
 
     if (allowed_mime_types.indexOf(file.type) == -1) {
@@ -136,7 +137,8 @@ const getCookie = (name) => {
 }
 
 const getMediaExtension = (mimetype) => {
-    const extensions = { 'audio/mp3': 'mp3', 'audio/wav': 'wav', 'audio/mpeg': 'mpeg', 'video/mp4': 'mp4', 'video/mkv': 'mkv', 'video/mov': 'mov', 'application/msword': 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'text/plain': 'txt', 'application/pdf': 'pdf'};
+    console.log(mimetype)
+    const extensions = { 'audio/mpeg': 'mp3', 'audio/wav': 'wav', 'video/mpeg': 'mpeg', 'video/mp4': 'mp4', 'video/mkv': 'mkv', 'video/mov': 'mov', 'application/msword': 'doc', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx', 'text/plain': 'txt', 'application/pdf': 'pdf'};
     return extensions[mimetype];
 }
 
@@ -154,10 +156,48 @@ const reloadFileUploads = (files_details) => {
                                 </div>
                                 <hr>
                                 <div class="file-card-footer">
-                                    <button class="btn btn-sm btn-primary" id="${filedata.fileid}">Generate Summary</button>
+                                    <button class="summary-btn btn btn-sm btn-primary" id="${filedata.fileid}">Generate Summary</button>
                                 </div>
                             </div>`
     });
     document.querySelector("#filesuploadedarea").innerHTML = fileuploadscontent;
-    document.querySelector("#filesuploadeddiv").classList.remove("invisible");
+    if (files_details.length == 0)
+        document.querySelector("#filesuploadeddiv").classList.add("invisible");
+    else
+        document.querySelector("#filesuploadeddiv").classList.remove("invisible");
+    addEventsToGenerateSummaryButtons();
+}
+
+const generateSummary = (event) => {
+    const fileid = event.target.id;
+    const csrftoken = getCookie('csrftoken');
+    $.ajax({
+        type: 'POST',
+        url: addtoqueueurl,
+        datatype: 'json',
+        headers: { "X-CSRFToken": csrftoken },
+        data: JSON.stringify({"fileid": fileid}),
+        beforeSend: function () {
+            $("#summary-queued-modal").modal('show');
+        },
+        success: function (response) {
+            if (!response['alreadyqueued']){
+                document.querySelector('.modal-body').innerHTML = `${response['filename']} has been queued for summarization.`;
+                $("#summary-queued-modal").modal('show');
+            }
+            reloadFileUploads(response['files_details']);
+        },
+        error: function (err) {
+            alert("Internal server error!");
+        },
+        cache: false,
+        contentType: false,
+        processData: false,
+    })
+}
+
+const addEventsToGenerateSummaryButtons = () => {
+    document.querySelectorAll(".summary-btn").forEach((btn) => {
+        btn.addEventListener("click", generateSummary);
+    })
 }

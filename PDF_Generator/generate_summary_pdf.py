@@ -41,4 +41,5 @@ def generate_summary_pdf(SUMMARY_PATH, emailhash, fileid, IMAGES_PATH = None):
         Story.append(Table([[Image(os.path.join(IMAGES_PATH, f"{fileid}_{len(os.listdir(IMAGES_PATH))-2}.jpeg"), 3.5 * inch, 2.5 * inch)]],
             colWidths=[4.5 * inch, 4.5 * inch],
             rowHeights=[3.5 * inch], style=chart_style))
+    print("Generated pdf\n\n\n")
     doc.build(Story)

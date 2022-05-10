@@ -14,7 +14,7 @@ class MediaDetails(models.Model):
     
     @staticmethod
     def getUnsummarizedFileDetails(email, BASE_URL):
-        records = MediaDetails.objects.filter(user = User.objects.get(email=email)).order_by('uploaddate')
+        records = MediaDetails.objects.filter(user = User.objects.get(email=email)).order_by('-uploaddate')
         emailhash = hashlib.md5(email.encode()).hexdigest()
         files_details = []
         for file_data in records:
@@ -30,7 +30,7 @@ class MediaDetails(models.Model):
     
     @staticmethod
     def getFileDetails(email):
-        records = MediaDetails.objects.filter(user = User.objects.get(email=email)).order_by('uploaddate')
+        records = MediaDetails.objects.filter(user = User.objects.get(email=email)).order_by('-uploaddate')
         files_details = []
         for file_data in records:
             if file_data.status != 'UPLOADED':
@@ -40,18 +40,26 @@ class MediaDetails(models.Model):
                     "filetype": file_data.filetype,
                     "fileid": file_data.fileid,
                     "status": file_data.status,
+                    "fileextension": file_data.fileextension
                 })
         return files_details
     
     @staticmethod
     def getOldestRequest():
-        latest_record = MediaDetails.objects.filter(status='UPLOADED').order_by('uploaddate')
-        if latest_record:
-            return latest_record[0]
-        return []
+        latest_record = MediaDetails.objects.filter(status='QUEUED').order_by('uploaddate')
+        for record in latest_record:
+            return {
+                "email": record.user.email,
+                "filename": record.filename,
+                "filetype": record.filetype,
+                "fileextension": record.fileextension,
+                "fileid": record.fileid,
+                "status": record.status
+            }
+        return {}
         
     @staticmethod
-    def updateStatus(user, fileid, status):
-        media_data = MediaDetails.objects.get(user=user, fileid = fileid)
+    def updateStatus(email, fileid, status):
+        media_data = MediaDetails.objects.get(user = User.objects.get(email=email), fileid = fileid)
         media_data.status = status
         media_data.save()

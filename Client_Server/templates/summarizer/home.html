@@ -27,15 +27,20 @@
         .file-card-header {
             font-size: medium;
             font-weight: bolder;
+            overflow-x: hidden;
         }
 
-        .file-card-header a{
+        .file-card-header a {
             color: black;
         }
 
         .file-card-body {
             font-size: small;
             font-weight: normal;
+        }
+
+        .modal-body {
+            overflow-x: hidden;
         }
 
         #error-message {
@@ -59,10 +64,12 @@
         .invisible {
             display: none;
         }
+
         #info-symbol {
             font-size: small;
             color: red;
         }
+
         #info-dialog {
             background-color: white;
             position: absolute;
@@ -83,7 +90,7 @@
                     <div class="form-group my-auto col-12">
                         <input type="file" name="uploadedFile" class="custom-file-input" id="fileinput"
                             aria-describedby="inputGroupFileAddon01"
-                            accept="audio/mp3, audio/wav, audio/mpeg, video/mp4, video/mkv, video/mov, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, application/pdf">
+                            accept="audio/mpeg, audio/wav, video/mpeg, video/mp4, video/mkv, video/mov, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document, text/plain, application/pdf">
                         <label class="custom-file-label" style="overflow:hidden" for="fileinput">Choose file</label>
                     </div>
                 </div>
@@ -105,8 +112,8 @@
                 </div>
             </div>
             {% if notsummarizedpresent %}
-            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border"
-                style="max-height: 50vh; overflow-y: auto" id="filesuploadeddiv">
+            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border" style="max-height: 50vh; overflow-y: auto"
+                id="filesuploadeddiv">
                 <div class="text-center mb-3">
                     <h3>Files Uploaded</h3>
                 </div>
@@ -124,7 +131,8 @@
                             </div>
                             <hr>
                             <div class="file-card-footer">
-                                <button class="btn btn-sm btn-primary" id="{{ filedata.fileid }}">Generate Summary</button>
+                                <button class="summary-btn btn btn-sm btn-primary float-left" id="{{ filedata.fileid }}">Generate
+                                    Summary</button>
                             </div>
                         </div>
                         {% endfor %}
@@ -139,19 +147,50 @@
                 </div>
                 <div class="col-12">
                     <div class="row" id="filesuploadedarea">
-                        
+
                     </div>
                 </div>
             </div>
             {% endif %}
         </div>
+        <div class="modal" id="summary-queued-modal" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title mx-auto">Queued Succesfully!</h5>
+                    </div>
+                    <div class="modal-body text-center">
+    
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>    
     </div>
     <div id="info-dialog" class="invisible border shadow-sm p-3 rounded-border">
 
     </div>
+    <div class="modal" id="summary-queued-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mx-auto">Queued Succesfully!</h5>
+                </div>
+                <div class="modal-body text-center">
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         var loginurl = "{% url 'signin' %}";
         var homeurl = "{% url 'home' %}";
+        var addtoqueueurl = "{% url 'addtoqueue' %}";
     </script>
 </body>
 

@@ -17,5 +17,5 @@ def get_text_from_pdf(INPUT_PATH):
         interpreter = PDFPageInterpreter(rsrcmgr, device)
         for page in PDFPage.create_pages(doc):
             interpreter.process_page(page)
-
+    print("Extracted text from pdf: \n\n", output_string.getvalue(), "\n\n\n")
     return output_string.getvalue()
