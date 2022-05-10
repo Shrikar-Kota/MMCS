@@ -75,7 +75,7 @@ def update_status(request):
         data = json.loads(request.body)
         if data['status'] == 'FINISHED':
             media_data = MediaDetails.objects.get(user=User.objects.get(email=data['email']), fileid=data['fileid'])
-            send_summmary_generated_notification_mail(media_data.user.email, media_data.user.username, "{}/{}/SUMMARY/{}".format(request.build_absolute_uri('/media'), hashlib.md5(media_data.user.email.encode()).hexdigest(), f"{media_data.fileid}_SUMMARY.{media_data.fileextension}"), media_data.filename)
+            send_summmary_generated_notification_mail(media_data.user.email, media_data.user.username, "{}/{}/SUMMARY/{}".format(request.build_absolute_uri('/media'), hashlib.md5(media_data.user.email.encode()).hexdigest(), f"{media_data.fileid}_SUMMARY.pdf"), media_data.filename)
         MediaDetails.updateStatus(data['email'], data['fileid'], data['status'])
         return JsonResponse({})
     return redirect('home')
