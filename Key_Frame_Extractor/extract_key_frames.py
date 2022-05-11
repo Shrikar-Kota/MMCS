@@ -8,6 +8,7 @@ import Katna.config as config
 from Katna.mediapipe import MediaPipeAutoFlip
 from multiprocessing import cpu_count
 import Katna.helper_functions as helper
+import sys
 
 class KeyFrameExtractor(KeyFrameDiskWriter):
     def generate_output_filename(self, filepath, keyframe_number):
@@ -49,3 +50,6 @@ def extractKeyFrames(INPUT_PATH, fileid, emailhash):
     )
     print("Extracted keyframes from video: \n\n\n")
     return OUTPUT_PATH
+
+if __name__ == '__main__':
+    extractKeyFrames(sys.argv[1], sys.argv[2], sys.argv[3])

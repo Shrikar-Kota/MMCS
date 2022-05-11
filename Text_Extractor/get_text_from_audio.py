@@ -42,5 +42,5 @@ def get_text_from_audio(INPUT_PATH, extension, fileid, emailhash, from_video):
                     whole_text += text
                     break
         os.remove(chunk_filename)
-    print("Extracted text from audio: \n\n", whole_text, "\n\n\n")
+    print("Extracted text from audio: \n\n\n", whole_text, "\n\n\n")
     return whole_text

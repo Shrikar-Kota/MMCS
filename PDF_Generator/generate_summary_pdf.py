@@ -32,14 +32,15 @@ def generate_summary_pdf(SUMMARY_PATH, emailhash, fileid, IMAGES_PATH = None):
         
         chart_style = TableStyle([('ALIGN', (0, 0), (-1, -1), 'CENTER'),
                           ('VALIGN', (0, 0), (-1, -1), 'MIDDLE')])
-        for i in range(len(os.listdir(IMAGES_PATH))-1):
-            if (i-len(os.listdir(IMAGES_PATH))+2) == 0:
+        for i in range(0, len(os.listdir(IMAGES_PATH))-1, 2):
+            if (len(os.listdir(IMAGES_PATH))-i-2) == 0:
                 break
             Story.append(Table([[Image(os.path.join(IMAGES_PATH, f"{fileid}_{i}.jpeg"), 3.5 * inch, 2.5 * inch), Image(os.path.join(IMAGES_PATH, f"{fileid}_{i+1}.jpeg"), 3.5 * inch, 2.5 * inch)]],
                      colWidths=[4.5 * inch, 4.5 * inch],
                      rowHeights=[3.5 * inch], style=chart_style))
-        Story.append(Table([[Image(os.path.join(IMAGES_PATH, f"{fileid}_{len(os.listdir(IMAGES_PATH))-2}.jpeg"), 3.5 * inch, 2.5 * inch)]],
-            colWidths=[4.5 * inch, 4.5 * inch],
-            rowHeights=[3.5 * inch], style=chart_style))
+        if (len(os.listdir(IMAGES_PATH))-1)%2:
+            Story.append(Table([[Image(os.path.join(IMAGES_PATH, f"{fileid}_{len(os.listdir(IMAGES_PATH))-2}.jpeg"), 3.5 * inch, 2.5 * inch)]],
+                colWidths=[4.5 * inch, 4.5 * inch],
+                rowHeights=[3.5 * inch], style=chart_style))
     print("Generated pdf\n\n\n")
     doc.build(Story)

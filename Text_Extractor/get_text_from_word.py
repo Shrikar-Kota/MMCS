@@ -14,6 +14,6 @@ def get_text_from_doc(INPUT_PATH):
     wb = word.Documents.Open(INPUT_PATH)
     doc = word.ActiveDocument
     text = doc.Range().Text
-    print("Extracted text from pdf: \n\n", text, "\n\n\n")
+    print("Extracted text from pdf: \n\n\n", text, "\n\n\n")
     wb.Close(True)
     return text
