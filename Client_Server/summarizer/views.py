@@ -1,5 +1,3 @@
-from distutils.command.upload import upload
-from genericpath import exists
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
@@ -82,4 +80,15 @@ def update_status(request):
 
 def get_oldest_queued_request(request):
     return JsonResponse(MediaDetails.getOldestRequest())
-    
+
+# def profile_view(request):
+#     if request.user.is_authenticated:
+#         userdata = User.objects.get(email=request.user.email)
+#         return render('summarizer/archives.html', userdata)
+#     return render('home')
+
+# def reset_password(request):
+#     if request.user.is_authenticated:
+#         if request.method == 'POST':
+#             return
+#         return 

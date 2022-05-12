@@ -21,7 +21,7 @@ def send_verification_email(receiver_email, username, url):
         server.sendmail(sender_email, receiver_email, message.as_string())
 
 def send_forgotpassword_email(receiver_email, username, url):
-    body = f"Hello {username},\n\tA request to reset the password of your account has been sent to the server. Please click the link given below to reset your passwod. The link expires in 10 minutes. Please ignore this message if you haven't requested for the reset.\n\n{url}.\n\nNote: This email is sent to <{receiver_email}>. Please ignore if you are not the intended receiver.\n\nDO NOT REPLY TO THIS MESSAGE."
+    body = f"Hello {username},\n\tA forgot-password request has been sent to the server. Please click the link given below to reset your passwod. The link expires in 10 minutes. Please ignore this message if you haven't requested for the password reset.\n\n{url}.\n\nNote: This email is sent to <{receiver_email}>. Please ignore if you are not the intended receiver.\n\nDO NOT REPLY TO THIS MESSAGE."
     message = MIMEText(body)
     message['Subject'] = "FORGOT PASSWORD"
     message['From'] = sender_email
