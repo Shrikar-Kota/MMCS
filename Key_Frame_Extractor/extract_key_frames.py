@@ -45,7 +45,7 @@ def extractKeyFrames(INPUT_PATH, fileid, emailhash):
     print("Clipped the video: \n\n\n")
     diskwriter = KeyFrameExtractor(location=OUTPUT_PATH)
     vd.extract_video_keyframes(
-        no_of_frames=15, file_path=INPUT_PATH,
+        no_of_frames=10, file_path=INPUT_PATH,
         writer=diskwriter
     )
     print("Extracted keyframes from video: \n\n\n")
