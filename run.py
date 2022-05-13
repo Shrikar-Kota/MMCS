@@ -16,4 +16,4 @@ print("Created MetaData Files")
 
 while 1:
     generate_summary()
-    time.sleep(60)
+    time.sleep(10)

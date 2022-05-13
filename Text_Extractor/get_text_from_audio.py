@@ -2,6 +2,7 @@ import speech_recognition as sr
 import os 
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
+from pydub.utils import make_chunks
 from pathlib import Path
 
 r = sr.Recognizer()
@@ -20,13 +21,16 @@ def get_text_from_audio(INPUT_PATH, extension, fileid, emailhash, from_video):
     )
     
     target_length = 30 * 1000
+    max_length = 40 * 1000
     output_chunks = [chunks[0]]
     for chunk in chunks[1:]:
-        if len(output_chunks[-1]) < target_length:
+        if len(output_chunks[-1]) < target_length and len(output_chunks[-1]) + len(chunk) < max_length:
             output_chunks[-1] += chunk
         else:
             output_chunks.append(chunk)
-    
+            
+    if len(output_chunks[-1]) > max_length:
+        output_chunks = [*output_chunks[:-1], *make_chunks(output_chunks[-1], max_length)]
     for audio_chunk in output_chunks:
         chunk_filename = os.path.join(folder_name, f"{emailhash}_{fileid}_chunk.wav")
         audio_chunk.export(chunk_filename, format="wav")
@@ -42,5 +46,6 @@ def get_text_from_audio(INPUT_PATH, extension, fileid, emailhash, from_video):
                     whole_text += text
                     break
         os.remove(chunk_filename)
+        
     print("Extracted text from audio: \n\n\n", whole_text, "\n\n\n")
     return whole_text
