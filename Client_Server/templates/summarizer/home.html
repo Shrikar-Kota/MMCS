@@ -43,7 +43,7 @@
             overflow-x: hidden;
         }
 
-        #error-message {
+        #error-message, #clip-error {
             border: 1px solid red;
             border-radius: 0.5rem !important;
             color: red;
@@ -52,7 +52,7 @@
             font-size: normal;
         }
 
-        #success-message {
+        #success-message, #clip-success {
             border: 1px solid #28a745;
             border-radius: 0.5rem !important;
             color: #24923e;
@@ -112,7 +112,7 @@
                 </div>
             </div>
             {% if notsummarizedpresent %}
-            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border" style="max-height: 50vh; overflow-y: auto"
+            <div class="col-12 mx-auto shadow-lg border p-4 rounded-border" style="max-height: 55vh; overflow-y: auto"
                 id="filesuploadeddiv">
                 <div class="text-center mb-3">
                     <h3>Files Uploaded</h3>
@@ -127,7 +127,12 @@
                             <hr>
                             <div class="file-card-body">
                                 Uploaded on: {{ filedata.uploaddate }}<br><br>
-                                File type: {{ filedata.filetype }}<br>
+                                File type: {{ filedata.filetype }}
+                                {% if filedata.filetype != 'TEXT' %}
+                                <br><br>
+                                DURATION: <div id="duration-{{ filedata.fileid }}" style="display:inline;">{{ filedata.start_time.hours }}: {{ filedata.start_time.minutes }}: {{ filedata.start_time.seconds }} to {{ filedata.end_time.hours }}: {{ filedata.end_time.minutes }}: {{ filedata.end_time.seconds }}</div> (HH: MM: SS) &nbsp;&nbsp;<button class="btn btn-sm btn-info clip-media-btn py-0 px-2" style="font-size: 0.75rem;" id="{{ filedata.fileid }}-clip-btn">Clip</button>
+                                {% endif %}
+                                <br>
                             </div>
                             <hr>
                             <div class="file-card-footer">
@@ -141,7 +146,7 @@
             </div>
             {% else %}
             <div class="col-12 mx-auto shadow-lg border p-4 rounded-border invisible"
-                style="max-height: 50vh; overflow-y: auto" id="filesuploadeddiv">
+                style="max-height: 55vh; overflow-y: auto" id="filesuploadeddiv">
                 <div class="text-center mb-3">
                     <h3>Files Uploaded</h3>
                 </div>
@@ -157,9 +162,9 @@
             <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title mx-auto">Queued Succesfully!</h5>
+                        <h5 class="modal-title queue-modal-title mx-auto">Queued Succesfully!</h5>
                     </div>
-                    <div class="modal-body text-center">
+                    <div class="modal-body queue-modal-body text-center">
     
                     </div>
                     <div class="modal-footer">
@@ -187,10 +192,47 @@
             </div>
         </div>
     </div>
+    <div class="modal" id="clip-media-modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-dialog-centered modal" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title mx-auto">Set from and to</h5>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-12">
+                            <label for="to-time" class="input-label col-2">From: </label>
+                            <input type="number" id="from-time-hours" placeholder="HH" class="col-3 text-center clipper-input" min="0"> : 
+                            <input type="number" id="from-time-minutes" placeholder="MM" class="col-3 text-center clipper-input" min="0" max="59" maxlength="2"  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);"> : 
+                            <input type="number" id="from-time-seconds" placeholder="SS" class="col-3 text-center clipper-input" min="0" max="50" maxlength="2"  oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" >
+                        </div>
+                        <br>
+                        <div class="col-12">
+                            <label for="to-time" class="input-label col-2">To: </label>
+                            <input type="number" id="to-time-hours" class="col-3 text-center clipper-input" placeholder="HH" min="0"> : 
+                            <input type="number" id="to-time-minutes" class="col-3 text-center clipper-input" placeholder="MM" min="0" max="50" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" > : 
+                            <input type="number" id="to-time-seconds" class="col-3 text-center clipper-input" placeholder="SS" min="0" max="50" maxlength="2" oninput="javascript: if (this.value.length > this.maxLength) this.value = this.value.slice(0, this.maxLength);" >
+                        </div>
+                        <div id="clip-success" class="px-5 py-1 mx-auto my-3 invisible">
+                            Clip Interval set successfully!
+                        </div>
+                        <div id="clip-error" class="px-5 py-1 mx-auto my-3 invisible">
+                            Invalid Time Intervals!
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-success" id="clip-reset-duration">Set</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         var loginurl = "{% url 'signin' %}";
         var homeurl = "{% url 'home' %}";
-        var addtoqueueurl = "{% url 'addtoqueue' %}";
+        var addtoqueueurl = "{% url 'addtoqueue' %}"; 
+        var filesdetails = {{ files_details|safe }};
     </script>
 </body>
 

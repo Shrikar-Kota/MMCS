@@ -1,3 +1,4 @@
+from pydoc import cli
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.core.files.storage import FileSystemStorage
@@ -7,6 +8,8 @@ import os
 import hashlib
 import datetime
 import json 
+from moviepy.editor import VideoFileClip
+from pydub import AudioSegment
 
 from .models import MediaDetails
 from accounts.models import User
@@ -36,10 +39,13 @@ def home_view(request):
                 uploadedfileid = int(uploaddate.timestamp()*(10**6))
                 filename = '{}.{}'.format(uploadedfileid, uploadedfileextension)
                 if not MediaDetails.objects.filter(user=User.objects.get(email=request.user.email), fileid = str(uploadedfileid)).exists():
-                    MediaDetails(user=User.objects.get(email=request.user.email), filename=uploadedfile.name, uploaddate=uploaddate, filetype=uploadedfiletype, fileid=str(uploadedfileid), fileextension=uploadedfileextension, status='UPLOADED').save()
+                    MediaDetails(user=User.objects.get(email=request.user.email), filename=uploadedfile.name, uploaddate=uploaddate, filetype=uploadedfiletype, fileid=str(uploadedfileid), fileextension=uploadedfileextension, status='UPLOADED', start_time_of_media=0, end_time_of_media=0).save()
                     break
             fs = FileSystemStorage(UPLOAD_FILE_PATH)
             fs.save(filename, uploadedfile)
+            UPLOAD_FILE_PATH = os.path.join(UPLOAD_FILE_PATH, filename)
+            if uploadedfiletype != "TEXT":
+                MediaDetails.updateStartAndEndTime(request.user.email, uploadedfileid, 0, get_duration_of_media(UPLOAD_FILE_PATH, uploadedfiletype))
             unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
             return JsonResponse({"notsummarizedpresent": len(unsummarized_filedetails) != 0, "files_details": unsummarized_filedetails})
         unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
@@ -60,11 +66,21 @@ def add_to_queue(request):
         if request.method == 'POST':
             data = json.loads(request.body)
             media_data =  MediaDetails.objects.get(user=User.objects.get(email=request.user.email), fileid = data['fileid'])
-            if not media_data or media_data.status != 'UPLOADED':
-                return JsonResponse({"alreadyqueued": True})
-            MediaDetails.updateStatus(request.user.email, data['fileid'], 'QUEUED')
             unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
-            return JsonResponse({"alreadyqueued": False, "filename": media_data.filename, "files_details": unsummarized_filedetails})
+            if not media_data or media_data.status != 'UPLOADED':
+                return JsonResponse({"alreadyqueued": True, "error": False, 'files_details': unsummarized_filedetails})
+            if media_data.filetype == 'TEXT':
+                MediaDetails.updateStatus(request.user.email, media_data.fileid, 'QUEUED')
+                unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
+                return JsonResponse({"error": False, "alreadyqueued": False, "filename": media_data.filename, "files_details": unsummarized_filedetails})
+            elif data['start_time'] < data['end_time']:    
+                if data['start_time'] < media_data.end_time_of_media and data['end_time'] <= media_data.end_time_of_media:
+                    MediaDetails.updateStartAndEndTime(request.user.email, media_data.fileid, data['start_time'], data['end_time'])
+                    MediaDetails.updateStatus(request.user.email, media_data.fileid, 'QUEUED')
+                    unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
+                    return JsonResponse({"error": False, "alreadyqueued": False, "filename": media_data.filename, "files_details": unsummarized_filedetails})
+            unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
+            return JsonResponse({"error": True, "alreadyqueued": False, 'files_details': unsummarized_filedetails})
     return redirect('home')
 
 @csrf_exempt
@@ -81,14 +97,10 @@ def update_status(request):
 def get_oldest_queued_request(request):
     return JsonResponse(MediaDetails.getOldestRequest())
 
-# def profile_view(request):
-#     if request.user.is_authenticated:
-#         userdata = User.objects.get(email=request.user.email)
-#         return render('summarizer/archives.html', userdata)
-#     return render('home')
-
-# def reset_password(request):
-#     if request.user.is_authenticated:
-#         if request.method == 'POST':
-#             return
-#         return 
+def get_duration_of_media(INPUT_FILE_PATH, MEDIA_TYPE):
+    if MEDIA_TYPE == 'VIDEO':
+        clip = VideoFileClip(INPUT_FILE_PATH)
+        return int(clip.duration)
+    else:
+        audio = AudioSegment.from_file(INPUT_FILE_PATH)
+        return int(audio.duration_seconds)

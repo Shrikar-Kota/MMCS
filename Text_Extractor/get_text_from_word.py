@@ -1,5 +1,3 @@
-from base64 import encode
-from encodings import utf_8
 import docx2txt
 import win32com.client
 

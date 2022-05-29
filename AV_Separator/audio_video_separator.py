@@ -1,4 +1,3 @@
-from doctest import OutputChecker
 import moviepy.editor as mp
 import os
 from pathlib import Path

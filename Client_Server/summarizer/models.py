@@ -11,6 +11,8 @@ class MediaDetails(models.Model):
     fileextension = models.CharField(max_length=6)
     fileid = models.CharField(max_length=100)
     status = models.CharField(max_length=100)
+    start_time_of_media = models.IntegerField()
+    end_time_of_media = models.IntegerField()
     
     @staticmethod
     def getUnsummarizedFileDetails(email, BASE_URL):
@@ -24,7 +26,11 @@ class MediaDetails(models.Model):
                     "uploaddate": file_data.uploaddate.strftime("%m/%d/%Y, %H:%M:%S")+" UTC",
                     "filetype": file_data.filetype,
                     "fileid": file_data.fileid,
-                    "fileurl": '{}/{}/{}/{}/{}'.format(BASE_URL, emailhash, 'INPUT', file_data.filetype, "{}.{}".format(file_data.fileid, file_data.fileextension))
+                    "fileurl": '{}/{}/{}/{}/{}'.format(BASE_URL, emailhash, 'INPUT', file_data.filetype, "{}.{}".format(file_data.fileid, file_data.fileextension)),
+                    "start_time_of_media": file_data.start_time_of_media,
+                    "end_time_of_media": file_data.end_time_of_media,
+                    'start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
+                    'end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)}
                 })
         return files_details
     
@@ -40,7 +46,11 @@ class MediaDetails(models.Model):
                     "filetype": file_data.filetype,
                     "fileid": file_data.fileid,
                     "status": file_data.status,
-                    "fileextension": file_data.fileextension
+                    "fileextension": file_data.fileextension,
+                    "start_time_of_media": file_data.start_time_of_media,
+                    "end_time_of_media": file_data.end_time_of_media,
+                    'start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
+                    'end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)}
                 })
         return files_details
     
@@ -54,7 +64,9 @@ class MediaDetails(models.Model):
                 "filetype": record.filetype,
                 "fileextension": record.fileextension,
                 "fileid": record.fileid,
-                "status": record.status
+                "status": record.status,
+                "start_time_of_media": record.start_time_of_media,
+                "end_time_of_media": record.end_time_of_media
             }
         return {}
         
@@ -63,3 +75,30 @@ class MediaDetails(models.Model):
         media_data = MediaDetails.objects.get(user = User.objects.get(email=email), fileid = fileid)
         media_data.status = status
         media_data.save()
+        return {
+                "email": media_data.user.email,
+                "filename": media_data.filename,
+                "filetype": media_data.filetype,
+                "fileextension": media_data.fileextension,
+                "fileid": media_data.fileid,
+                "status": media_data.status,
+                "start_time_of_media": media_data.start_time_of_media,
+                "end_time_of_media": media_data.end_time_of_media
+            }
+        
+    @staticmethod
+    def updateStartAndEndTime(email, fileid, starttime, endtime):
+        media_data = MediaDetails.objects.get(user = User.objects.get(email=email), fileid = fileid)
+        media_data.start_time_of_media = starttime
+        media_data.end_time_of_media = endtime
+        media_data.save()
+        return {
+                "email": media_data.user.email,
+                "filename": media_data.filename,
+                "filetype": media_data.filetype,
+                "fileextension": media_data.fileextension,
+                "fileid": media_data.fileid,
+                "status": media_data.status,
+                "start_time_of_media": media_data.start_time_of_media,
+                "end_time_of_media": media_data.end_time_of_media
+            }

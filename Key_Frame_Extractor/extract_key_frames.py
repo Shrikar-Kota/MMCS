@@ -1,6 +1,4 @@
-from mimetypes import suffix_map
 import os
-from tkinter import filedialog
 from Katna.video import Video
 from Katna.writer import KeyFrameDiskWriter
 from pathlib import Path
