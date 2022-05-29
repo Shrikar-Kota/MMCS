@@ -13,6 +13,7 @@ class MediaDetails(models.Model):
     status = models.CharField(max_length=100)
     start_time_of_media = models.IntegerField()
     end_time_of_media = models.IntegerField()
+    total_duration_of_media = models.IntegerField()
     
     @staticmethod
     def getUnsummarizedFileDetails(email, BASE_URL):
@@ -29,8 +30,10 @@ class MediaDetails(models.Model):
                     "fileurl": '{}/{}/{}/{}/{}'.format(BASE_URL, emailhash, 'INPUT', file_data.filetype, "{}.{}".format(file_data.fileid, file_data.fileextension)),
                     "start_time_of_media": file_data.start_time_of_media,
                     "end_time_of_media": file_data.end_time_of_media,
-                    'start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
-                    'end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)}
+                    'trim_start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
+                    'trim_end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)},
+                    'start_time': {'hours': '00', 'minutes': '00','seconds': '00'},
+                    'end_time': {'hours': str(file_data.total_duration_of_media//360).zfill(2), 'minutes': str((file_data.total_duration_of_media//60)%60).zfill(2), 'seconds': str(file_data.total_duration_of_media%60).zfill(2)},
                 })
         return files_details
     
@@ -49,8 +52,10 @@ class MediaDetails(models.Model):
                     "fileextension": file_data.fileextension,
                     "start_time_of_media": file_data.start_time_of_media,
                     "end_time_of_media": file_data.end_time_of_media,
-                    'start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
-                    'end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)}
+                    'trim_start_time': {'hours': str(file_data.start_time_of_media//360).zfill(2), 'minutes': str((file_data.start_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.start_time_of_media%60).zfill(2)}, 
+                    'trim_end_time': {'hours': str(file_data.end_time_of_media//360).zfill(2), 'minutes': str((file_data.end_time_of_media//60)%60).zfill(2), 'seconds': str(file_data.end_time_of_media%60).zfill(2)},
+                    'start_time': {'hours': '00', 'minutes': '00','seconds': '00'},
+                    'end_time': {'hours': str(file_data.total_duration_of_media//360).zfill(2), 'minutes': str((file_data.total_duration_of_media//60)%60).zfill(2), 'seconds': str(file_data.total_duration_of_media%60).zfill(2)},
                 })
         return files_details
     
@@ -66,7 +71,8 @@ class MediaDetails(models.Model):
                 "fileid": record.fileid,
                 "status": record.status,
                 "start_time_of_media": record.start_time_of_media,
-                "end_time_of_media": record.end_time_of_media
+                "end_time_of_media": record.end_time_of_media,
+                "total_duration_of_media": record.total_duration_of_media
             }
         return {}
         

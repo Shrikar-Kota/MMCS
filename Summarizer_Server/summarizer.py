@@ -9,8 +9,6 @@ from pathlib import Path
 import os
 import hashlib
 
-from moviepy.editor import VideoFileClip
-from pydub import AudioSegment
 
 def generate_summary():
     media_data = getOldestRequest()
@@ -27,22 +25,26 @@ def generate_summary():
         
     elif media_data['filetype'] == 'AUDIO':
         INPUT_PATH = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.getcwd(), 'Media'), emailhash), 'INPUT'), 'AUDIO'), f"{media_data['fileid']}.{media_data['fileextension']}")
-        if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != get_duration_of_media(INPUT_PATH, 'AUDIO'):
+        if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != media_data['total_duration_of_media']:
             clip_media_file(media_data['start_time_of_media'], media_data['end_time_of_media'], media_data['fileid'], media_data['fileextension'], INPUT_PATH, 'AUDIO')
         generate_audio_summary(INPUT_PATH, emailhash=emailhash, **media_data)
     else:
         INPUT_PATH = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.getcwd(), 'Media'), emailhash), 'INPUT'), 'VIDEO'), f"{media_data['fileid']}.{media_data['fileextension']}")
-        if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != get_duration_of_media(INPUT_PATH, 'VIDEO'):
+        duration = media_data['end_time_of_media'] - media_data['start_time_of_media']
+        if duration >= 120:
+            nframes = 10
+        elif duration >= 60:
+            nframes = 6
+        elif duration >= 30:
+            nframes = 5
+        else:
+            nframes = 2
+        media_data['nframes'] = nframes
+        if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != media_data['total_duration_of_media']:
             if clip_media_file(media_data['start_time_of_media'], media_data['end_time_of_media'], media_data['fileid'], media_data['fileextension'], INPUT_PATH, 'VIDEO'):
                 generate_video_summary(INPUT_PATH, emailhash=emailhash, **media_data)
-    
+        else:
+            generate_video_summary(INPUT_PATH, emailhash=emailhash, **media_data)
     updateStatus(email=media_data['email'], fileid=media_data['fileid'], status='FINISHED')
     return True
 
-def get_duration_of_media(INPUT_FILE_PATH, MEDIA_TYPE):
-    if MEDIA_TYPE == 'VIDEO':
-        clip = VideoFileClip(INPUT_FILE_PATH)
-        return int(clip.duration)
-    else:
-        audio = AudioSegment.from_file(INPUT_FILE_PATH)
-        return int(audio.duration_seconds)

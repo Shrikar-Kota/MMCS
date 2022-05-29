@@ -58,6 +58,12 @@
                             <div class="file-card-body">
                                 Uploaded on: {{ filedata.uploaddate }}<br><br>
                                 File type: {{ filedata.filetype }}<br><br>
+                                {% if filedata.filetype != 'TEXT' %}
+                                Total Duration: {{ filedata.start_time.hours }}: {{ filedata.start_time.minutes }}: {{ filedata.start_time.seconds }} to {{ filedata.end_time.hours }}: {{ filedata.end_time.minutes }}: {{ filedata.end_time.seconds }} (HH: MM: SS)
+                                <br><br>
+                                Summary genrated for: {{ filedata.trim_start_time.hours }}: {{ filedata.trim_start_time.minutes }}: {{ filedata.trim_start_time.seconds }} to {{ filedata.trim_end_time.hours }}: {{ filedata.trim_end_time.minutes }}: {{ filedata.trim_end_time.seconds }} (HH: MM: SS)
+                                <br><br>
+                                {% endif %}
                                 Status: {{ filedata.status }}
                             </div>
                             <hr>

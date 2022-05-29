@@ -39,13 +39,17 @@ def home_view(request):
                 uploadedfileid = int(uploaddate.timestamp()*(10**6))
                 filename = '{}.{}'.format(uploadedfileid, uploadedfileextension)
                 if not MediaDetails.objects.filter(user=User.objects.get(email=request.user.email), fileid = str(uploadedfileid)).exists():
-                    MediaDetails(user=User.objects.get(email=request.user.email), filename=uploadedfile.name, uploaddate=uploaddate, filetype=uploadedfiletype, fileid=str(uploadedfileid), fileextension=uploadedfileextension, status='UPLOADED', start_time_of_media=0, end_time_of_media=0).save()
+                    MediaDetails(user=User.objects.get(email=request.user.email), filename=uploadedfile.name, uploaddate=uploaddate, filetype=uploadedfiletype, fileid=str(uploadedfileid), fileextension=uploadedfileextension, status='UPLOADED', start_time_of_media=0, end_time_of_media=0, total_duration_of_media=0).save()
                     break
             fs = FileSystemStorage(UPLOAD_FILE_PATH)
             fs.save(filename, uploadedfile)
             UPLOAD_FILE_PATH = os.path.join(UPLOAD_FILE_PATH, filename)
             if uploadedfiletype != "TEXT":
-                MediaDetails.updateStartAndEndTime(request.user.email, uploadedfileid, 0, get_duration_of_media(UPLOAD_FILE_PATH, uploadedfiletype))
+                total_duration = get_duration_of_media(UPLOAD_FILE_PATH, uploadedfiletype)
+                MediaDetails.updateStartAndEndTime(request.user.email, uploadedfileid, 0, total_duration)
+                mediaobj = MediaDetails.objects.get(user=User.objects.get(email=request.user.email), fileid=str(uploadedfileid))
+                mediaobj.total_duration_of_media = total_duration
+                mediaobj.save()
             unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))
             return JsonResponse({"notsummarizedpresent": len(unsummarized_filedetails) != 0, "files_details": unsummarized_filedetails})
         unsummarized_filedetails = MediaDetails.getUnsummarizedFileDetails(request.user.email, request.build_absolute_uri('/media'))

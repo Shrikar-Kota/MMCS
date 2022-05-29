@@ -16,7 +16,7 @@ def generate_video_summary(INPUT_PATH, **kwargs):
     TEXT_SUMMARY_PATH = os.path.join(Path(INPUT_PATH).parent.parent.parent.parent, "Text_Summarizer_Media")
     getTextSummary(text, TEXT_SUMMARY_PATH, kwargs['fileid'], kwargs['emailhash'])
     TEXT_SUMMARY_PATH = os.path.join(TEXT_SUMMARY_PATH, f"{kwargs['emailhash']}_{kwargs['fileid']}.txt")
-    extract_key_frames_from_video(INPUT_PATH, kwargs['fileid'], kwargs['emailhash'])
+    extract_key_frames_from_video(INPUT_PATH, kwargs['fileid'], kwargs['emailhash'], kwargs['nframes'])
     KEY_FRAMES_PATH = os.path.join(os.path.join(os.path.join(Path(INPUT_PATH).parent.parent.parent.parent, "Key_Frame_Extractor_Media"), kwargs['emailhash'], kwargs['fileid']))
     generate_summary_pdf(TEXT_SUMMARY_PATH, kwargs['emailhash'], kwargs['fileid'], KEY_FRAMES_PATH)
     os.remove(TEXT_SUMMARY_PATH)
