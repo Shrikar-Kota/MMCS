@@ -170,14 +170,18 @@ class ImageSelector(object):
         # Kmeans clustering on the histograms
         kmeans = KMeans(n_clusters=self.nb_clusters, random_state=0).fit(all_hists)
         labels = kmeans.labels_
-
+        
         # Identifying the label for each image in the cluster and tagging them
         files_clusters_index_array = []
         for i in np.arange(self.nb_clusters):
             index_array = np.where(labels == i)
             files_clusters_index_array.append(index_array)
-
-        files_clusters_index_array = np.array(files_clusters_index_array, dtype=object)
+        index = 0
+        while index < len(files_clusters_index_array):
+            if not files_clusters_index_array[index][0].size:
+                break
+            index += 1
+        files_clusters_index_array = np.array(files_clusters_index_array[:index], dtype=object)
         return files_clusters_index_array
 
     def __get_laplacian_scores(self, files, n_images):
@@ -201,7 +205,7 @@ class ImageSelector(object):
             # Calculating the blurryness of image
             variance_laplacian = self.__variance_of_laplacian__(img)
             variance_laplacians.append(variance_laplacian)
-
+        
         return variance_laplacians
 
     def __get_best_images_index_from_each_cluster__(
@@ -230,9 +234,8 @@ class ImageSelector(object):
             variance_laplacians = self.__get_laplacian_scores(files, n_images)
 
             # Selecting image with low burr(high laplacian) score
-            if variance_laplacians:
-                selected_frame_of_current_cluster = curr_row[np.argmax(variance_laplacians)]
-                filtered_items.append(selected_frame_of_current_cluster)
+            selected_frame_of_current_cluster = curr_row[np.argmax(variance_laplacians)]
+            filtered_items.append(selected_frame_of_current_cluster)
 
         return filtered_items
 
@@ -300,6 +303,7 @@ class ImageSelector(object):
             )
 
             for index in selected_images_index:
+                
                 img = filtered_key_frames[index]
                 filtered_images_list.append(img)
         else:

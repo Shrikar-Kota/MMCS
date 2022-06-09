@@ -13,7 +13,7 @@ from pydub import AudioSegment
 
 from .models import MediaDetails
 from accounts.models import User
-from .email_service import send_summmary_generated_notification_mail
+from .email_service import send_summmary_generated_notification_mail, send_summmary_processing_notification_mail, send_summmary_failed_notification_mail
 
 def home_view(request):
     if request.user.is_authenticated:
@@ -94,6 +94,12 @@ def update_status(request):
         if data['status'] == 'FINISHED':
             media_data = MediaDetails.objects.get(user=User.objects.get(email=data['email']), fileid=data['fileid'])
             send_summmary_generated_notification_mail(media_data.user.email, media_data.user.username, "{}/{}/SUMMARY/{}".format(request.build_absolute_uri('/media'), hashlib.md5(media_data.user.email.encode()).hexdigest(), f"{media_data.fileid}_SUMMARY.pdf"), media_data.filename)
+        elif data['status'] == 'PROCESSING':
+            media_data = MediaDetails.objects.get(user=User.objects.get(email=data['email']), fileid=data['fileid'])
+            send_summmary_processing_notification_mail(media_data.user.email, media_data.user.username, media_data.filename)
+        elif data['status'] == 'FAILED':
+            media_data = MediaDetails.objects.get(user=User.objects.get(email=data['email']), fileid=data['fileid'])
+            send_summmary_failed_notification_mail(media_data.user.email, media_data.user.username, media_data.filename)
         MediaDetails.updateStatus(data['email'], data['fileid'], data['status'])
         return JsonResponse({})
     return redirect('home')

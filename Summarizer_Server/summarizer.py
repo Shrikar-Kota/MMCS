@@ -1,4 +1,3 @@
-from datetime import datetime
 from .generate_text_summary import generate_text_summary
 from .generate_audio_summary import generate_audio_summary
 from .generate_video_summary import generate_video_summary
@@ -22,7 +21,7 @@ def generate_summary():
     if media_data['filetype'] == 'TEXT':
         INPUT_PATH = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.getcwd(), 'Media'), emailhash), 'INPUT'), 'TEXT'), f"{media_data['fileid']}.{media_data['fileextension']}")
         generate_text_summary(INPUT_PATH, emailhash=emailhash, **media_data)
-        
+    
     elif media_data['filetype'] == 'AUDIO':
         INPUT_PATH = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.getcwd(), 'Media'), emailhash), 'INPUT'), 'AUDIO'), f"{media_data['fileid']}.{media_data['fileextension']}")
         if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != media_data['total_duration_of_media']:
@@ -30,16 +29,6 @@ def generate_summary():
         generate_audio_summary(INPUT_PATH, emailhash=emailhash, **media_data)
     else:
         INPUT_PATH = os.path.join(os.path.join(os.path.join(os.path.join(os.path.join(os.getcwd(), 'Media'), emailhash), 'INPUT'), 'VIDEO'), f"{media_data['fileid']}.{media_data['fileextension']}")
-        duration = media_data['end_time_of_media'] - media_data['start_time_of_media']
-        if duration >= 120:
-            nframes = 10
-        elif duration >= 60:
-            nframes = 6
-        elif duration >= 30:
-            nframes = 5
-        else:
-            nframes = 2
-        media_data['nframes'] = nframes
         if media_data['start_time_of_media'] != 0 and media_data['end_time_of_media'] != media_data['total_duration_of_media']:
             if clip_media_file(media_data['start_time_of_media'], media_data['end_time_of_media'], media_data['fileid'], media_data['fileextension'], INPUT_PATH, 'VIDEO'):
                 generate_video_summary(INPUT_PATH, emailhash=emailhash, **media_data)

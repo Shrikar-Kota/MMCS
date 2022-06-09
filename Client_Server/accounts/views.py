@@ -22,7 +22,9 @@ def accounts_home_view(request):
             return redirect(signin_view)
         try:
             email = Fernet(fernet_key).decrypt(token.encode()).decode()
+            print(email)
             if User.objects.filter(email=email):
+                print("Account home")
                 return render(request, 'accounts/home.html', {"email": email})
             else:
                 return redirect('signin')
@@ -42,7 +44,8 @@ def signin_view(request):
                     auth.login(request, user)
                     return JsonResponse({"message": "valid"})
                 else:
-                    return JsonResponse({"message": "unverified"})
+                    email_token = Fernet(fernet_key).encrypt(user.email.encode()).decode()
+                    return JsonResponse({"message": "unverified", "token": email_token})
             else:
                 return JsonResponse({"message": "invalid"})
         return render(request, 'accounts/signin.html')

@@ -77,7 +77,7 @@ const loginUser = (event) => {
                 }else if (response['message'] == 'valid'){
                     window.location.href = summarizerhomeurl;
                 }else{
-                    window.location.href = accountshomeurl;
+                    window.location.href = accountshomeurl + "?token=" + response['token'];
                 }
             },
             error: function(){

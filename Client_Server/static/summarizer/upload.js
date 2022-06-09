@@ -256,6 +256,10 @@ const setFromandTo = () => {
     hideClipSuccess();
     var frominseconds = parseInt(document.getElementById('from-time-hours').value*360) + parseInt(document.getElementById('from-time-minutes').value*60) + parseInt(document.getElementById('from-time-seconds').value);
     var toinseconds = parseInt(document.getElementById('to-time-hours').value*360) + parseInt(document.getElementById('to-time-minutes').value*60) + parseInt(document.getElementById('to-time-seconds').value);
+    if (!checkFromAndTo()){
+        displayClipError();
+        return;
+    }
     if (frominseconds >= toinseconds){
         displayClipError();
         return;
@@ -312,4 +316,11 @@ const resetStartandEndDetails = (filedetails) => {
         startandenddetails[file.fileid]['end_time'] = file.end_time_of_media;
         startandenddetails[file.fileid]['duration'] = file.end_time_of_media;
     })
+}
+
+const checkFromAndTo = () => {
+    if (!(document.getElementById('from-time-minutes').value >= 0 && document.getElementById('from-time-minutes').value < 60 && document.getElementById('to-time-minutes').value >= 0 && document.getElementById('to-time-minutes').value < 60 && document.getElementById('to-time-seconds').value >= 0 && document.getElementById('to-time-seconds').value < 60 && document.getElementById('from-time-seconds').value >= 0 && document.getElementById('from-time-seconds').value < 60)){
+        return false;
+    }
+    return true;
 }
